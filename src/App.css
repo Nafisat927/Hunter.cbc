@@ -1,0 +1,102 @@
+.page {
+  min-height: 100svh;
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: 64px 20px;
+
+  background: linear-gradient(160deg, #ffffff 0%, #f7d9d6 45%, #e8a8a2 100%);
+  background-attachment: fixed;
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.75);
+  border: 3px solid #ffc6de;
+  border-radius: 40px;
+  padding: 36px 28px 32px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(6px);
+}
+
+.plate {
+  width: 168px;
+  height: 168px;
+  border-radius: 50%;
+  background: #ffffff;
+  padding: 6px;
+  border: 4px solid #ffc6de;
+  box-shadow: 0 10px 25px rgba(219, 129, 173, 0.35);
+  margin-bottom: 22px;
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.title {
+  font-family: 'Baloo 2', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(26px, 7vw, 40px);
+  color: #1a1a1a;
+  margin: 0;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+.subtitle {
+  font-family: 'Baloo 2', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: #1a1a1a;
+  margin: 4px 0 30px;
+}
+
+.links {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.link-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 16px 20px;
+  background: #fff5fa;
+  color: #1a1a1a;
+  border-radius: 999px;
+  text-decoration: none;
+  font-family: 'Baloo 2', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  box-shadow: 0 6px 14px rgba(219, 129, 173, 0.25);
+  border: 2px solid #ffc6de;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.link-button:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 10px 20px rgba(219, 129, 173, 0.35);
+  background: #ffeaf3;
+}
+
+.link-icon {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 8px;
+}
