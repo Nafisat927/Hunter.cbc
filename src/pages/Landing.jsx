@@ -34,9 +34,9 @@ const links = [
   },
   {
     label: 'the cookbook guide',
-    href: '#',
+    href: 'https://map-cookbookclub.vercel.app',
     icon: <span className="link-emoji" aria-hidden="true">📍</span>,
-    external: false,
+    external: true,
   },
 ]
 
