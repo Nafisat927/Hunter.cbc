@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import profilePic from '../assets/cbcpic.jpg'
 
 const links = [
@@ -38,6 +39,12 @@ const links = [
     icon: <span className="link-emoji" aria-hidden="true">📍</span>,
     external: true,
   },
+  {
+    label: 'the cookbook recipe book',
+    to: '/recipe-book',
+    icon: <span className="link-emoji" aria-hidden="true">📖</span>,
+    internal: true,
+  },
 ]
 
 function Landing() {
@@ -52,19 +59,25 @@ function Landing() {
         <p className="subtitle">Hunter College</p>
 
         <div className="links">
-          {links.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              {...(link.external
-                ? { target: '_blank', rel: 'noopener noreferrer' }
-                : { onClick: (e) => e.preventDefault() })}
-              className="link-button"
-            >
-              {link.icon}
-              <span>{link.label}</span>
-            </a>
-          ))}
+          {links.map((link) =>
+            link.internal ? (
+              <Link key={link.label} to={link.to} className="link-button">
+                {link.icon}
+                <span>{link.label}</span>
+              </Link>
+            ) : (
+              <a
+                key={link.label}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="link-button"
+              >
+                {link.icon}
+                <span>{link.label}</span>
+              </a>
+            ),
+          )}
         </div>
       </div>
     </div>
