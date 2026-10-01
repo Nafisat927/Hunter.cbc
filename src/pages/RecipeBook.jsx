@@ -126,13 +126,9 @@ function RecipeBook() {
 
       <header className="recipe-book-header">
         <Link to="/" className="recipe-book-back">
-          ← Return to the club
+          ← Return to the main page
         </Link>
-        <p className="recipe-book-kicker">Cookbook Club · Hunter College</p>
         <h1 className="recipe-book-title">The Cookbook Recipe Book</h1>
-        <p className="recipe-book-subtitle">
-          A shared volume of recipes from the table — add your page, leave the rest as written.
-        </p>
       </header>
 
       <div className="book-cover">
@@ -258,9 +254,8 @@ function RecipeBook() {
               <article className="recipe-detail" key={selected.id}>
                 <div className="recipe-detail-top">
                   <div>
-                    <p className="recipe-kicker">From the collection</p>
                     <h2>{selected.title}</h2>
-                    <p className="recipe-byline">Prepared by {selected.author}</p>
+                    <p className="recipe-byline">Written by {selected.author}</p>
                   </div>
                   {selected.owned && (
                     <div className="recipe-actions">
@@ -293,12 +288,6 @@ function RecipeBook() {
 
                 <h3>Method</h3>
                 <p className="instructions">{selected.instructions}</p>
-
-                {!selected.owned && (
-                  <p className="ownership-note">
-                    A fellow member’s page — for reading only.
-                  </p>
-                )}
               </article>
             ) : (
               <div className="recipe-empty">

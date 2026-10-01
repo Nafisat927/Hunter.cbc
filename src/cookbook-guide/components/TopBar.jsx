@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { logoDataUri } from '../lib/logo';
 
 const typeConfig = [
@@ -14,9 +15,15 @@ export default function TopBar({ filters, filterPanelOpen, onToggleFilterPanel }
   return (
     <div className="top-bar">
       <header>
-        <div className="logo-block">
-          <div className="logo-img">
-            <img src={logoDataUri} alt="CookBook Guide" />
+        <div className="logo-col">
+          <Link to="/" className="back-to-landing-btn">
+            ← Back to Hunter.cbc
+          </Link>
+
+          <div className="logo-block">
+            <div className="logo-img">
+              <img src={logoDataUri} alt="CookBook Guide" />
+            </div>
           </div>
         </div>
 

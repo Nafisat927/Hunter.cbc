@@ -68,7 +68,7 @@ export default function MapView({ places, onSelectPlace }) {
 
       const icon = L.divIcon({
         className: '',
-        html: `<div class="emoji-marker" title="${place.name}">${cfg.emoji}</div>`,
+        html: `<div class="emoji-marker">${cfg.emoji}</div>`,
         iconSize: [36, 36],
         iconAnchor: [18, 18],
         popupAnchor: [0, -20],
