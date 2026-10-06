@@ -12,7 +12,8 @@ import LoginModal from '../cookbook-guide/components/LoginModal'
 import AccountSettingsModal from '../cookbook-guide/components/AccountSettingsModal'
 import Modal from '../cookbook-guide/components/Modal'
 import SingleSelectDropdown from '../cookbook-guide/components/SingleSelectDropdown'
-import { cuisineOptions } from '../cookbook-guide/lib/formOptions'
+import TagsMultiSelect from '../cookbook-guide/components/TagsMultiSelect'
+import { cuisineOptions, recipeTags } from '../cookbook-guide/lib/formOptions'
 import '../cookbook-guide/fonts.css'
 import '../cookbook-guide/cookbook-guide.css'
 import './RecipeBook.css'
@@ -22,6 +23,7 @@ const cuisineSelectOptions = cuisineOptions.map((c) => ({ value: c, label: c }))
 const emptyForm = {
   title: '',
   cuisine: '',
+  tags: [],
   ingredients: '',
   instructions: '',
   image: '', // URL shown in the preview (existing photo or a local preview)
@@ -49,6 +51,7 @@ function RecipeBook() {
   const [saving, setSaving] = useState(false)
   const [dataError, setDataError] = useState('')
   const [cuisineFilter, setCuisineFilter] = useState([])
+  const [tagFilter, setTagFilter] = useState([])
 
   // Same Supabase e-board auth the map uses.
   const { currentUser, login, logout } = useAuth()
@@ -61,16 +64,19 @@ function RecipeBook() {
 
   const selected = recipes.find((recipe) => recipe.id === selectedId) ?? null
 
-  // Filter only offers cuisines that some recipe actually uses.
+  // Filter only offers cuisines/tags that some recipe actually uses.
+  // Same rules as the map: any picked cuisine AND any picked tag.
   const usedCuisines = [...new Set(recipes.map((r) => r.cuisine).filter(Boolean))].sort()
-  const visibleRecipes = cuisineFilter.length
-    ? recipes.filter((r) => cuisineFilter.includes(r.cuisine))
-    : recipes
+  const usedTags = [...new Set(recipes.flatMap((r) => r.tags))].sort()
+  const filterCount = cuisineFilter.length + tagFilter.length
+  const visibleRecipes = recipes.filter(
+    (r) =>
+      (!cuisineFilter.length || cuisineFilter.includes(r.cuisine)) &&
+      (!tagFilter.length || r.tags.some((t) => tagFilter.includes(t))),
+  )
 
-  function toggleCuisineFilter(cuisine) {
-    setCuisineFilter((prev) =>
-      prev.includes(cuisine) ? prev.filter((c) => c !== cuisine) : [...prev, cuisine],
-    )
+  function toggleIn(setList, value) {
+    setList((prev) => (prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]))
   }
 
   // Reload recipes from Supabase. Pass an id to select that page afterwards.
@@ -113,6 +119,7 @@ function RecipeBook() {
     setForm({
       title: recipe.title,
       cuisine: recipe.cuisine,
+      tags: recipe.tags,
       ingredients: recipe.ingredients.join('\n'),
       instructions: recipe.instructions,
       image: recipe.image || '',
@@ -156,6 +163,7 @@ function RecipeBook() {
       // edits keep the original author.
       author: mode === 'edit' && selected ? selected.author : authorName(currentUser),
       cuisine: form.cuisine,
+      tags: form.tags,
       ingredients: form.ingredients.split('\n'),
       instructions: form.instructions,
       // Only keep an existing photo URL; local previews (blob:) aren't real URLs.
@@ -217,24 +225,42 @@ function RecipeBook() {
           <section className="book-page book-page-left">
             <div className="page-heading">
               <h2>Table of Contents</h2>
-              {usedCuisines.length > 0 && (
+              {(usedCuisines.length > 0 || usedTags.length > 0) && (
                 <details className="toc-filter">
                   <summary className="book-btn">
-                    Filter{cuisineFilter.length ? ` (${cuisineFilter.length})` : ''} ▾
+                    Filter{filterCount ? ` (${filterCount})` : ''} ▾
                   </summary>
                   <div className="toc-filter-menu">
-                    {usedCuisines.map((cuisine) => (
-                      <label key={cuisine}>
-                        <input
-                          type="checkbox"
-                          checked={cuisineFilter.includes(cuisine)}
-                          onChange={() => toggleCuisineFilter(cuisine)}
-                        />
-                        {cuisine}
-                      </label>
-                    ))}
-                    {cuisineFilter.length > 0 && (
-                      <button type="button" className="toc-filter-clear" onClick={() => setCuisineFilter([])}>
+                    {[
+                      ['Cuisine', usedCuisines, cuisineFilter, setCuisineFilter],
+                      ['Tags', usedTags, tagFilter, setTagFilter],
+                    ].map(
+                      ([heading, options, picked, setPicked]) =>
+                        options.length > 0 && (
+                          <fieldset key={heading} className="toc-filter-group">
+                            <legend>{heading}</legend>
+                            {options.map((option) => (
+                              <label key={option}>
+                                <input
+                                  type="checkbox"
+                                  checked={picked.includes(option)}
+                                  onChange={() => toggleIn(setPicked, option)}
+                                />
+                                {option}
+                              </label>
+                            ))}
+                          </fieldset>
+                        ),
+                    )}
+                    {filterCount > 0 && (
+                      <button
+                        type="button"
+                        className="toc-filter-clear"
+                        onClick={() => {
+                          setCuisineFilter([])
+                          setTagFilter([])
+                        }}
+                      >
                         Clear filter
                       </button>
                     )}
@@ -269,7 +295,7 @@ function RecipeBook() {
                 </li>
               ))}
             </ol>
-            {cuisineFilter.length > 0 && visibleRecipes.length === 0 && (
+            {filterCount > 0 && visibleRecipes.length === 0 && (
               <p className="recipe-empty-note">No recipes match that filter.</p>
             )}
           </section>
@@ -277,7 +303,7 @@ function RecipeBook() {
           <section className="book-page book-page-right">
             {mode === 'add' || mode === 'edit' ? (
               <form className="recipe-form" onSubmit={handleSubmit}>
-                <h2>{mode === 'add' ? 'Inscribe a New Recipe' : 'Amend Your Recipe'}</h2>
+                <h2>{mode === 'add' ? 'Write a New Recipe' : 'Amend Your Recipe'}</h2>
 
                 <label>
                   Title
@@ -298,6 +324,17 @@ function RecipeBook() {
                       options={cuisineSelectOptions}
                       value={form.cuisine}
                       onChange={(cuisine) => setForm((prev) => ({ ...prev, cuisine }))}
+                    />
+                  </div>
+                </div>
+
+                <div className="recipe-form-field">
+                  Tags
+                  <div className="cookbook-guide-app">
+                    <TagsMultiSelect
+                      options={recipeTags}
+                      value={form.tags}
+                      onChange={(tags) => setForm((prev) => ({ ...prev, tags }))}
                     />
                   </div>
                 </div>
@@ -359,7 +396,6 @@ function RecipeBook() {
                     <h2>{selected.title}</h2>
                     <p className="recipe-byline">
                       Written by {selected.author}
-                      {selected.cuisine ? ` · ${selected.cuisine}` : ''}
                     </p>
                   </div>
                   {isEboard && selected.owned && (
@@ -377,6 +413,17 @@ function RecipeBook() {
                     </div>
                   )}
                 </div>
+
+                {(selected.cuisine || selected.tags.length > 0) && (
+                  <div className="recipe-tags">
+                    {selected.cuisine && <span className="recipe-tag">{selected.cuisine}</span>}
+                    {selected.tags.map((tag) => (
+                      <span key={tag} className="recipe-tag">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
                 {selected.image && (
                   <figure className="recipe-photo">

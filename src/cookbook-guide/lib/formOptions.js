@@ -19,6 +19,12 @@ export const cuisineOptions = [
   'Thai','Turkish','Uzbek','Vegan','Vegetarian','Venezuelan','Vietnamese','Other'
 ];
 
+export const recipeTags = [
+  'Quick', 'Under 30 Min', 'Budget', 'Beginner Friendly', 'Meal Prep', 'One Pot',
+  'No Bake', 'Comfort Food', 'Spicy', 'Sweet', 'Breakfast', 'Lunch', 'Dinner',
+  'Dessert', 'Snack', 'Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free', 'Halal'
+];
+
 export const predefinedTags = [
   'Quick Bite', 'Cheap Eats', 'Date Night', 'Group Friendly', 'Quiet',
   'Good WiFi', 'Study Spot', 'Instagrammable', 'Brunch', 'Spicy',

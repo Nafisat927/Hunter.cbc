@@ -19,6 +19,9 @@ create table if not exists public.recipes (
 -- Cuisine (same list as the map). Added later, so this also upgrades an existing table.
 alter table public.recipes add column if not exists cuisine text;
 
+-- Tags (like the map's place tags), one per array entry.
+alter table public.recipes add column if not exists tags text[] not null default '{}';
+
 -- 2. Row Level Security (who can do what)
 alter table public.recipes enable row level security;
 

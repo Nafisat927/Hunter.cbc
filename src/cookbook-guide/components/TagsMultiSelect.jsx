@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { predefinedTags } from '../lib/formOptions';
 
-export default function TagsMultiSelect({ value, onChange }) {
+export default function TagsMultiSelect({ value, onChange, options = predefinedTags }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [customTags, setCustomTags] = useState([]);
@@ -16,7 +16,7 @@ export default function TagsMultiSelect({ value, onChange }) {
     return () => document.removeEventListener('click', close);
   }, [open]);
 
-  const allOptions = [...new Set([...predefinedTags, ...customTags, ...value])];
+  const allOptions = [...new Set([...options, ...customTags, ...value])];
   const filtered = allOptions.filter((t) =>
     t.toLowerCase().includes(search.trim().toLowerCase())
   );
