@@ -1,138 +1,93 @@
-const STORAGE_KEY = 'cbc-recipes-v2'
+// Recipe Book data layer — reads/writes the `recipes` table in the same
+// Supabase project the CookBook Guide map uses (see supabase/recipes.sql).
+import { sbClient } from '../cookbook-guide/lib/supabaseClient'
+import { uploadPhotos } from '../cookbook-guide/lib/photoUpload'
 
-const SEED_RECIPES = [
-  {
-    id: 'seed-garlic-noodles',
-    title: 'Garlic Butter Noodles',
-    author: 'Maya C.',
-    image:
-      'https://images.unsplash.com/photo-1622973536968-3ead9e2448d5?auto=format&fit=crop&w=800&q=80',
-    ingredients: [
-      '8 oz spaghetti',
-      '4 tbsp butter',
-      '4 cloves garlic, minced',
-      '1/4 cup grated Parmesan',
-      'Salt and black pepper',
-      'Chopped parsley',
-    ],
-    instructions:
-      'Boil the noodles until al dente. Melt butter in a pan, add garlic and cook until fragrant. Toss noodles in the garlic butter, finish with Parmesan, salt, pepper, and parsley.',
-    owned: false,
-    createdAt: '2026-01-10T12:00:00.000Z',
-  },
-  {
-    id: 'seed-overnight-oats',
-    title: 'Berry Overnight Oats',
-    author: 'Jordan L.',
-    image:
-      'https://images.unsplash.com/photo-1517673400267-0251440c45dc?auto=format&fit=crop&w=800&q=80',
-    ingredients: [
-      '1/2 cup rolled oats',
-      '1/2 cup milk of choice',
-      '1/4 cup yogurt',
-      '1 tbsp honey',
-      '1/2 cup mixed berries',
-      'Pinch of cinnamon',
-    ],
-    instructions:
-      'Stir oats, milk, yogurt, honey, and cinnamon in a jar. Top with berries, cover, and refrigerate overnight. Eat cold or warm gently in the morning.',
-    owned: false,
-    createdAt: '2026-02-02T12:00:00.000Z',
-  },
-  {
-    id: 'seed-sheet-pan-tofu',
-    title: 'Sheet-Pan Honey Soy Tofu',
-    author: 'Sam R.',
-    image:
-      'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80',
-    ingredients: [
-      '1 block firm tofu, cubed',
-      '2 tbsp soy sauce',
-      '1 tbsp honey',
-      '1 tbsp oil',
-      '1 tsp sesame oil',
-      'Broccoli florets',
-      'Sesame seeds',
-    ],
-    instructions:
-      'Toss tofu and broccoli with soy sauce, honey, oil, and sesame oil. Spread on a sheet pan and roast at 400°F for 25 minutes, flipping once. Sprinkle with sesame seeds before serving.',
-    owned: false,
-    createdAt: '2026-03-15T12:00:00.000Z',
-  },
-]
+const PHOTO_BUCKET = 'recipe-photos'
 
-function readStore() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(SEED_RECIPES))
-      return [...SEED_RECIPES]
-    }
-    return JSON.parse(raw)
-  } catch {
-    return [...SEED_RECIPES]
+// Turn a database row into the shape RecipeBook.jsx uses.
+// `owned` is true when the logged-in user wrote this page.
+function mapRow(row, currentUserId) {
+  return {
+    id: row.id,
+    title: row.title,
+    author: row.author,
+    image: row.image_url || '',
+    ingredients: row.ingredients || [],
+    instructions: row.instructions || '',
+    owned: !!currentUserId && row.author_id === currentUserId,
+    createdAt: row.created_at,
   }
 }
 
-function writeStore(recipes) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes))
+function cleanIngredients(ingredients) {
+  return ingredients.map((item) => item.trim()).filter(Boolean)
 }
 
-export function getRecipes() {
-  return readStore().sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-  )
+// Uploads one photo into recipe-photos/<recipeId>/ and returns its public URL.
+async function uploadRecipePhoto(recipeId, file) {
+  const [url] = await uploadPhotos(PHOTO_BUCKET, recipeId, [file])
+  if (!url) throw new Error('Photo upload failed.')
+  return url
 }
 
-export function addRecipe({ title, author, ingredients, instructions, image }) {
-  const recipes = readStore()
-  const recipe = {
-    id: crypto.randomUUID(),
-    title: title.trim(),
-    author: author.trim() || 'Anonymous',
-    image: image || '',
-    ingredients: ingredients.filter((item) => item.trim()).map((item) => item.trim()),
-    instructions: instructions.trim(),
-    owned: true,
-    createdAt: new Date().toISOString(),
-  }
-  recipes.push(recipe)
-  writeStore(recipes)
-  return recipe
+export async function getRecipes(currentUserId) {
+  const { data, error } = await sbClient
+    .from('recipes')
+    .select('*')
+    .order('created_at', { ascending: true })
+
+  if (error) throw new Error(error.message)
+  return data.map((row) => mapRow(row, currentUserId))
 }
 
-export function updateRecipe(id, { title, author, ingredients, instructions, image }) {
-  const recipes = readStore()
-  const index = recipes.findIndex((recipe) => recipe.id === id)
-  if (index === -1) {
-    throw new Error('Recipe not found')
-  }
-  if (!recipes[index].owned) {
-    throw new Error('You can only edit your own recipes')
+export async function addRecipe({ title, author, ingredients, instructions, imageFile }) {
+  const { data: inserted, error } = await sbClient
+    .from('recipes')
+    .insert({
+      title: title.trim(),
+      author: author.trim() || 'Eboard Member',
+      ingredients: cleanIngredients(ingredients),
+      instructions: instructions.trim(),
+    })
+    .select()
+    .single()
+
+  if (error) throw new Error(error.message)
+
+  // Photo goes in after the row exists, so it can live in a folder named
+  // after the recipe id (same approach as the map's place photos).
+  if (imageFile) {
+    const imageUrl = await uploadRecipePhoto(inserted.id, imageFile)
+    const { error: photoError } = await sbClient
+      .from('recipes')
+      .update({ image_url: imageUrl })
+      .eq('id', inserted.id)
+    if (photoError) throw new Error(photoError.message)
   }
 
-  recipes[index] = {
-    ...recipes[index],
-    title: title.trim(),
-    author: author.trim() || 'Anonymous',
-    image: image || '',
-    ingredients: ingredients.filter((item) => item.trim()).map((item) => item.trim()),
-    instructions: instructions.trim(),
-  }
-  writeStore(recipes)
-  return recipes[index]
+  return inserted.id
 }
 
-export function deleteRecipe(id) {
-  const recipes = readStore()
-  const recipe = recipes.find((item) => item.id === id)
-  if (!recipe) {
-    throw new Error('Recipe not found')
-  }
-  if (!recipe.owned) {
-    throw new Error('You can only delete your own recipes')
-  }
+export async function updateRecipe(id, { title, author, ingredients, instructions, image, imageFile }) {
+  let imageUrl = image || null
+  if (imageFile) imageUrl = await uploadRecipePhoto(id, imageFile)
 
-  const next = recipes.filter((item) => item.id !== id)
-  writeStore(next)
+  const { error } = await sbClient
+    .from('recipes')
+    .update({
+      title: title.trim(),
+      author: author.trim() || 'Eboard Member',
+      ingredients: cleanIngredients(ingredients),
+      instructions: instructions.trim(),
+      image_url: imageUrl,
+    })
+    .eq('id', id)
+
+  if (error) throw new Error(error.message)
+}
+
+export async function deleteRecipe(id) {
+  const { error } = await sbClient.from('recipes').delete().eq('id', id)
+  if (error) throw new Error(error.message)
 }

@@ -8,6 +8,7 @@ export default function EboardControls({
   onLogout,
   onOpenAddPlace,
   addLabel = '+ Add Place',
+  myRecsLabel = '📍 Your Recommendations',
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
@@ -56,7 +57,7 @@ export default function EboardControls({
               onOpenMyRecs();
             }}
           >
-            📍 Your Recommendations
+            {myRecsLabel}
           </button>
         )}
         <button

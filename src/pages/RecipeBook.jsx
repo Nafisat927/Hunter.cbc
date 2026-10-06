@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   addRecipe,
@@ -10,6 +10,7 @@ import { useAuth } from '../cookbook-guide/hooks/useAuth'
 import EboardControls from '../cookbook-guide/components/EboardControls'
 import LoginModal from '../cookbook-guide/components/LoginModal'
 import AccountSettingsModal from '../cookbook-guide/components/AccountSettingsModal'
+import Modal from '../cookbook-guide/components/Modal'
 import '../cookbook-guide/fonts.css'
 import '../cookbook-guide/cookbook-guide.css'
 import './RecipeBook.css'
@@ -18,27 +19,11 @@ const emptyForm = {
   title: '',
   ingredients: '',
   instructions: '',
-  image: '',
+  image: '', // URL shown in the preview (existing photo or a local preview)
+  imageFile: null, // a newly chosen photo, uploaded to Supabase on save
 }
 
-const MAX_IMAGE_BYTES = 1_200_000
-
-function readImageFile(file) {
-  return new Promise((resolve, reject) => {
-    if (!file.type.startsWith('image/')) {
-      reject(new Error('Please choose an image file.'))
-      return
-    }
-    if (file.size > MAX_IMAGE_BYTES) {
-      reject(new Error('Image must be under about 1MB. Try a smaller photo.'))
-      return
-    }
-    const reader = new FileReader()
-    reader.onload = () => resolve(String(reader.result))
-    reader.onerror = () => reject(new Error('Could not read that image.'))
-    reader.readAsDataURL(file)
-  })
-}
+const MAX_IMAGE_BYTES = 5_000_000
 
 function authorName(user) {
   const meta = user?.user_metadata || {}
@@ -50,26 +35,51 @@ function authorName(user) {
 }
 
 function RecipeBook() {
-  const [recipes, setRecipes] = useState(() => getRecipes())
-  const [selectedId, setSelectedId] = useState(() => getRecipes()[0]?.id ?? null)
+  const [recipes, setRecipes] = useState([])
+  const [selectedId, setSelectedId] = useState(null)
   const [mode, setMode] = useState('view')
   const [form, setForm] = useState(emptyForm)
   const [imageError, setImageError] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [dataError, setDataError] = useState('')
 
   // Same Supabase e-board auth the map uses.
   const { currentUser, login, logout } = useAuth()
   const isEboard = !!currentUser
+  const currentUserId = currentUser?.id ?? null
 
   const [loginOpen, setLoginOpen] = useState(false)
   const [accountSettingsOpen, setAccountSettingsOpen] = useState(false)
+  const [myRecipesOpen, setMyRecipesOpen] = useState(false)
 
   const selected = recipes.find((recipe) => recipe.id === selectedId) ?? null
 
-  function refresh(nextSelectedId) {
-    const next = getRecipes()
-    setRecipes(next)
-    setSelectedId(nextSelectedId ?? next[0]?.id ?? null)
-  }
+  // Reload recipes from Supabase. Pass an id to select that page afterwards.
+  const refresh = useCallback(
+    async (nextSelectedId) => {
+      try {
+        const next = await getRecipes(currentUserId)
+        setRecipes(next)
+        setSelectedId((prev) => {
+          const wanted = nextSelectedId ?? prev
+          return next.some((r) => r.id === wanted) ? wanted : next[0]?.id ?? null
+        })
+        setDataError('')
+      } catch (err) {
+        setDataError(err.message)
+      } finally {
+        setLoading(false)
+      }
+    },
+    [currentUserId],
+  )
+
+  // Load on first visit, and again when someone logs in/out
+  // (so "your page" and the Edit/Remove buttons update).
+  useEffect(() => {
+    refresh()
+  }, [refresh])
 
   function openAdd() {
     setMode('add')
@@ -77,15 +87,17 @@ function RecipeBook() {
     setImageError('')
   }
 
-  function openEdit() {
-    if (!selected?.owned) return
+  function openEdit(recipe = selected) {
+    if (!recipe?.owned) return
+    setSelectedId(recipe.id)
     setMode('edit')
     setImageError('')
     setForm({
-      title: selected.title,
-      ingredients: selected.ingredients.join('\n'),
-      instructions: selected.instructions,
-      image: selected.image || '',
+      title: recipe.title,
+      ingredients: recipe.ingredients.join('\n'),
+      instructions: recipe.instructions,
+      image: recipe.image || '',
+      imageFile: null,
     })
   }
 
@@ -95,21 +107,25 @@ function RecipeBook() {
     setImageError('')
   }
 
-  async function handleImageChange(event) {
+  function handleImageChange(event) {
     const file = event.target.files?.[0]
     if (!file) return
     setImageError('')
-    try {
-      const image = await readImageFile(file)
-      setForm((prev) => ({ ...prev, image }))
-    } catch (err) {
-      setImageError(err.message)
+    if (!file.type.startsWith('image/')) {
+      setImageError('Please choose an image file.')
+      return
     }
+    if (file.size > MAX_IMAGE_BYTES) {
+      setImageError('Image must be under 5MB. Try a smaller photo.')
+      return
+    }
+    // Show a local preview now; the real upload happens when the page is saved.
+    setForm((prev) => ({ ...prev, image: URL.createObjectURL(file), imageFile: file }))
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
-    if (!form.title.trim()) return
+    if (!form.title.trim() || saving) return
 
     const payload = {
       title: form.title,
@@ -118,28 +134,40 @@ function RecipeBook() {
       author: mode === 'edit' && selected ? selected.author : authorName(currentUser),
       ingredients: form.ingredients.split('\n'),
       instructions: form.instructions,
-      image: form.image,
+      // Only keep an existing photo URL; local previews (blob:) aren't real URLs.
+      image: form.imageFile ? '' : form.image,
+      imageFile: form.imageFile,
     }
 
-    if (mode === 'add') {
-      const created = addRecipe(payload)
-      refresh(created.id)
-    } else if (mode === 'edit' && selected) {
-      updateRecipe(selected.id, payload)
-      refresh(selected.id)
-    }
-
-    setMode('view')
-    setForm(emptyForm)
+    setSaving(true)
     setImageError('')
+    try {
+      if (mode === 'add') {
+        const newId = await addRecipe(payload)
+        await refresh(newId)
+      } else if (mode === 'edit' && selected) {
+        await updateRecipe(selected.id, payload)
+        await refresh(selected.id)
+      }
+      setMode('view')
+      setForm(emptyForm)
+    } catch (err) {
+      setImageError(err.message)
+    } finally {
+      setSaving(false)
+    }
   }
 
-  function handleDelete() {
-    if (!selected?.owned) return
-    if (!window.confirm(`Delete “${selected.title}”?`)) return
-    deleteRecipe(selected.id)
-    setMode('view')
-    refresh(null)
+  async function handleDelete(recipe = selected) {
+    if (!recipe?.owned) return
+    if (!window.confirm(`Delete “${recipe.title}”?`)) return
+    try {
+      await deleteRecipe(recipe.id)
+      setMode('view')
+      await refresh(null)
+    } catch (err) {
+      setDataError(err.message)
+    }
   }
 
   function handleLogout() {
@@ -166,6 +194,9 @@ function RecipeBook() {
             <div className="page-heading">
               <h2>Table of Contents</h2>
             </div>
+
+            {loading && <p className="recipe-empty-note">Opening the book…</p>}
+            {dataError && <p className="image-error">Couldn’t load recipes: {dataError}</p>}
 
             <ol className="toc">
               {recipes.map((recipe) => (
@@ -217,7 +248,7 @@ function RecipeBook() {
                     <button
                       type="button"
                       className="book-btn"
-                      onClick={() => setForm({ ...form, image: '' })}
+                      onClick={() => setForm({ ...form, image: '', imageFile: null })}
                     >
                       Remove photograph
                     </button>
@@ -247,8 +278,8 @@ function RecipeBook() {
                 </label>
 
                 <div className="form-actions">
-                  <button type="submit" className="book-btn book-btn-primary">
-                    Save to the book
+                  <button type="submit" className="book-btn book-btn-primary" disabled={saving}>
+                    {saving ? 'Saving…' : 'Save to the book'}
                   </button>
                   <button type="button" className="book-btn" onClick={cancelForm}>
                     Cancel
@@ -265,13 +296,13 @@ function RecipeBook() {
                   </div>
                   {isEboard && selected.owned && (
                     <div className="recipe-actions">
-                      <button type="button" className="book-btn" onClick={openEdit}>
+                      <button type="button" className="book-btn" onClick={() => openEdit()}>
                         Edit
                       </button>
                       <button
                         type="button"
                         className="book-btn book-btn-danger"
-                        onClick={handleDelete}
+                        onClick={() => handleDelete()}
                       >
                         Remove
                       </button>
@@ -295,7 +326,7 @@ function RecipeBook() {
                 <h3>Method</h3>
                 <p className="instructions">{selected.instructions}</p>
               </article>
-            ) : (
+            ) : loading ? null : (
               <div className="recipe-empty">
                 <p>These pages are blank. Add the first recipe to the volume.</p>
                 {isEboard ? (
@@ -318,6 +349,8 @@ function RecipeBook() {
           currentUser={currentUser}
           onOpenLogin={() => setLoginOpen(true)}
           onOpenAccountSettings={() => setAccountSettingsOpen(true)}
+          onOpenMyRecs={() => setMyRecipesOpen(true)}
+          myRecsLabel="📖 Your Recipes"
           onLogout={handleLogout}
           onOpenAddPlace={openAdd}
           addLabel="+ Add a page"
@@ -330,6 +363,50 @@ function RecipeBook() {
           onClose={() => setAccountSettingsOpen(false)}
           currentUser={currentUser}
         />
+
+        {/* Same look as the map's "Your Recommendations" modal, listing your recipes. */}
+        <Modal
+          open={myRecipesOpen}
+          onClose={() => setMyRecipesOpen(false)}
+          title="Your Recipes"
+          width="clamp(320px, 35vw, 520px)"
+        >
+          {recipes.filter((r) => r.owned).length === 0 ? (
+            <div style={{ color: 'rgba(26,26,46,0.4)', fontSize: '0.85rem', textAlign: 'center', padding: '20px 0' }}>
+              No recipes yet.
+            </div>
+          ) : (
+            recipes
+              .filter((r) => r.owned)
+              .map((recipe) => (
+                <div className="my-rec-row" key={recipe.id}>
+                  <div className="my-rec-info">
+                    <div className="my-rec-name">{recipe.title}</div>
+                    <div className="my-rec-meta">{recipe.author}</div>
+                  </div>
+                  <div className="my-rec-actions">
+                    <button
+                      className="btn-rec-edit"
+                      title="Edit"
+                      onClick={() => {
+                        setMyRecipesOpen(false)
+                        openEdit(recipe)
+                      }}
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      className="btn-rec-delete"
+                      title="Delete"
+                      onClick={() => handleDelete(recipe)}
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              ))
+          )}
+        </Modal>
       </div>
     </div>
   )
