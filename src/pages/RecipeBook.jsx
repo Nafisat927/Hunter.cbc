@@ -16,7 +16,6 @@ import './RecipeBook.css'
 
 const emptyForm = {
   title: '',
-  author: '',
   ingredients: '',
   instructions: '',
   image: '',
@@ -39,6 +38,15 @@ function readImageFile(file) {
     reader.onerror = () => reject(new Error('Could not read that image.'))
     reader.readAsDataURL(file)
   })
+}
+
+function authorName(user) {
+  const meta = user?.user_metadata || {}
+  return (
+    `${meta.first_name || ''} ${meta.last_initial || ''}`.trim() ||
+    user?.email ||
+    'Eboard Member'
+  )
 }
 
 function RecipeBook() {
@@ -75,7 +83,6 @@ function RecipeBook() {
     setImageError('')
     setForm({
       title: selected.title,
-      author: selected.author,
       ingredients: selected.ingredients.join('\n'),
       instructions: selected.instructions,
       image: selected.image || '',
@@ -106,7 +113,9 @@ function RecipeBook() {
 
     const payload = {
       title: form.title,
-      author: form.author,
+      // New pages are signed by whoever is logged in (same name format as the map);
+      // edits keep the original author.
+      author: mode === 'edit' && selected ? selected.author : authorName(currentUser),
       ingredients: form.ingredients.split('\n'),
       instructions: form.instructions,
       image: form.image,
@@ -194,15 +203,6 @@ function RecipeBook() {
                     onChange={(e) => setForm({ ...form, title: e.target.value })}
                     required
                     placeholder="e.g. Sunday Roast Chicken"
-                  />
-                </label>
-
-                <label>
-                  Author
-                  <input
-                    value={form.author}
-                    onChange={(e) => setForm({ ...form, author: e.target.value })}
-                    placeholder="Name as it should appear in the book"
                   />
                 </label>
 
