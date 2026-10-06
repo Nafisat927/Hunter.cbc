@@ -7,6 +7,7 @@ export default function EboardControls({
   onOpenMyRecs,
   onLogout,
   onOpenAddPlace,
+  addLabel = '+ Add Place',
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
@@ -47,15 +48,17 @@ export default function EboardControls({
         >
           👤 Account Settings
         </button>
-        <button
-          className="gear-menu-item"
-          onClick={() => {
-            setMenuOpen(false);
-            onOpenMyRecs();
-          }}
-        >
-          📍 Your Recommendations
-        </button>
+        {onOpenMyRecs && (
+          <button
+            className="gear-menu-item"
+            onClick={() => {
+              setMenuOpen(false);
+              onOpenMyRecs();
+            }}
+          >
+            📍 Your Recommendations
+          </button>
+        )}
         <button
           className="gear-menu-item danger"
           onClick={() => {
@@ -71,7 +74,7 @@ export default function EboardControls({
         className={`add-place-btn${currentUser ? ' visible' : ''}`}
         onClick={onOpenAddPlace}
       >
-        + Add Place
+        {addLabel}
       </button>
     </>
   );

@@ -499,6 +499,11 @@
   margin-top: 4px;
 }
 
+/* Scope wrapper for the map's e-board controls; children are all position: fixed. */
+.recipe-book-page .cookbook-guide-app {
+  display: contents;
+}
+
 @media (max-width: 860px) {
   .book {
     grid-template-columns: 1fr;

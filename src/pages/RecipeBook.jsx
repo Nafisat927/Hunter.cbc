@@ -7,6 +7,11 @@ import {
   updateRecipe,
 } from '../data/recipes'
 import { useAuth } from '../cookbook-guide/hooks/useAuth'
+import EboardControls from '../cookbook-guide/components/EboardControls'
+import LoginModal from '../cookbook-guide/components/LoginModal'
+import AccountSettingsModal from '../cookbook-guide/components/AccountSettingsModal'
+import '../cookbook-guide/fonts.css'
+import '../cookbook-guide/cookbook-guide.css'
 import './RecipeBook.css'
 
 const emptyForm = {
@@ -47,11 +52,8 @@ function RecipeBook() {
   const { currentUser, login, logout } = useAuth()
   const isEboard = !!currentUser
 
-  const [gearOpen, setGearOpen] = useState(false)
   const [loginOpen, setLoginOpen] = useState(false)
-  const [loginEmail, setLoginEmail] = useState('')
-  const [loginPassword, setLoginPassword] = useState('')
-  const [loginError, setLoginError] = useState('')
+  const [accountSettingsOpen, setAccountSettingsOpen] = useState(false)
 
   const selected = recipes.find((recipe) => recipe.id === selectedId) ?? null
 
@@ -131,34 +133,8 @@ function RecipeBook() {
     refresh(null)
   }
 
-  function openLogin() {
-    setGearOpen(false)
-    setLoginEmail('')
-    setLoginPassword('')
-    setLoginError('')
-    setLoginOpen(true)
-  }
-
-  function closeLogin() {
-    setLoginOpen(false)
-  }
-
-  async function handleLoginSubmit(event) {
-    event.preventDefault()
-    setLoginError('')
-    const errMsg = await login(loginEmail.trim(), loginPassword)
-    if (errMsg) {
-      setLoginError(errMsg)
-      return
-    }
-    setLoginEmail('')
-    setLoginPassword('')
-    setLoginOpen(false)
-  }
-
   function handleLogout() {
     logout()
-    setGearOpen(false)
     if (mode === 'add' || mode === 'edit') cancelForm()
   }
 
@@ -297,7 +273,7 @@ function RecipeBook() {
                     <h2>{selected.title}</h2>
                     <p className="recipe-byline">Written by {selected.author}</p>
                   </div>
-                  {selected.owned && (
+                  {isEboard && selected.owned && (
                     <div className="recipe-actions">
                       <button type="button" className="book-btn" onClick={openEdit}>
                         Edit
@@ -345,71 +321,25 @@ function RecipeBook() {
         </div>
       </div>
 
-      {/* ── E-BOARD GEAR TRIGGER / MENU (same Supabase auth as the map) ── */}
-      <button
-        className="rb-eboard-trigger"
-        title="E-board"
-        onClick={() => setGearOpen((o) => !o)}
-      >
-        ⚙️
-      </button>
+      {/* Same e-board gear menu + modals as the map. The wrapper only scopes
+          cookbook-guide.css; it's display: contents so it adds no box. */}
+      <div className="cookbook-guide-app">
+        <EboardControls
+          currentUser={currentUser}
+          onOpenLogin={() => setLoginOpen(true)}
+          onOpenAccountSettings={() => setAccountSettingsOpen(true)}
+          onLogout={handleLogout}
+          onOpenAddPlace={openAdd}
+          addLabel="+ Add a page"
+        />
 
-      <div className={`rb-gear-menu${gearOpen ? ' visible' : ''}`}>
-        {isEboard ? (
-          <button type="button" className="rb-gear-menu-item danger" onClick={handleLogout}>
-            Sign out
-          </button>
-        ) : (
-          <button type="button" className="rb-gear-menu-item" onClick={openLogin}>
-            E-board log in
-          </button>
-        )}
-      </div>
+        <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} onLogin={login} />
 
-      {/* ── ADD-A-PAGE BUTTON (only visible once signed in) ── */}
-      <button
-        type="button"
-        className={`rb-add-page-btn${isEboard ? ' visible' : ''}`}
-        onClick={openAdd}
-      >
-        + Add a page
-      </button>
-
-      {/* ── LOGIN MODAL ── */}
-      <div className={`rb-backdrop${loginOpen ? ' visible' : ''}`} onClick={closeLogin} />
-      <div className={`rb-modal${loginOpen ? ' visible' : ''}`}>
-        <div className="rb-modal-header">
-          <span className="rb-modal-title">E-board log in</span>
-          <button type="button" className="rb-modal-close" onClick={closeLogin}>
-            ✕
-          </button>
-        </div>
-        <form className="rb-modal-body" onSubmit={handleLoginSubmit}>
-          <input
-            type="email"
-            className="rb-input"
-            placeholder="Email"
-            value={loginEmail}
-            onChange={(e) => setLoginEmail(e.target.value)}
-            autoFocus
-          />
-          <input
-            type="password"
-            className="rb-input"
-            placeholder="Password"
-            value={loginPassword}
-            onChange={(e) => setLoginPassword(e.target.value)}
-          />
-          <p className="rb-error">{loginError}</p>
-          <div className="form-actions">
-            <button type="submit" className="rb-btn-primary">
-              Log in
-            </button>
-            <button type="button" className="rb-btn-secondary" onClick={closeLogin}>
-              Cancel
-            </button>
-          </div>
-        </form>
+        <AccountSettingsModal
+          open={accountSettingsOpen}
+          onClose={() => setAccountSettingsOpen(false)}
+          currentUser={currentUser}
+        />
       </div>
     </div>
   )
