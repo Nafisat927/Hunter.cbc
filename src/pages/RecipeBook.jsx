@@ -159,7 +159,7 @@ function RecipeBook() {
             </div>
 
             <ol className="toc">
-              {recipes.map((recipe, index) => (
+              {recipes.map((recipe) => (
                 <li key={recipe.id}>
                   <button
                     type="button"
@@ -169,16 +169,6 @@ function RecipeBook() {
                       setMode('view')
                     }}
                   >
-                    {recipe.image ? (
-                      <img
-                        src={recipe.image}
-                        alt=""
-                        className="toc-thumb"
-                      />
-                    ) : (
-                      <span className="toc-thumb toc-thumb-empty" aria-hidden="true" />
-                    )}
-                    <span className="toc-index">{String(index + 1).padStart(2, '0')}</span>
                     <span className="toc-text">
                       <span className="toc-title">{recipe.title}</span>
                       <span className="toc-author">

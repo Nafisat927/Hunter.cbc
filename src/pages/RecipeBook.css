@@ -228,10 +228,7 @@
 
 .toc-item {
   width: 100%;
-  display: grid;
-  grid-template-columns: 48px auto 1fr;
-  gap: 10px;
-  align-items: center;
+  display: block;
   text-align: left;
   padding: 8px;
   border: 1px solid transparent;
@@ -250,35 +247,6 @@
 .toc-item.is-active {
   background: rgba(196, 163, 90, 0.2);
   border-color: rgba(168, 137, 95, 0.55);
-}
-
-.toc-thumb {
-  width: 48px;
-  height: 48px;
-  object-fit: cover;
-  border: 1px solid var(--rule);
-  box-shadow: 1px 1px 0 rgba(42, 33, 24, 0.2);
-  filter: sepia(0.25) contrast(1.05);
-}
-
-.toc-thumb-empty {
-  display: block;
-  background:
-    repeating-linear-gradient(
-      -45deg,
-      rgba(168, 137, 95, 0.2),
-      rgba(168, 137, 95, 0.2) 4px,
-      transparent 4px,
-      transparent 8px
-    ),
-    var(--parchment-deep);
-}
-
-.toc-index {
-  font-family: 'Forward Serif', Georgia, serif;
-  font-weight: 400;
-  font-size: 18px;
-  color: var(--rule);
 }
 
 .toc-text {
@@ -526,10 +494,6 @@
   .book-page-left {
     border-right: none;
     border-bottom: 1px double var(--rule);
-  }
-
-  .toc-item {
-    grid-template-columns: 44px auto 1fr;
   }
 
   .recipe-detail-top {
