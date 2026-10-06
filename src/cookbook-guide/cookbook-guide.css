@@ -1125,3 +1125,11 @@
     mask-image: linear-gradient(to right, #000 85%, transparent);
   }
 }
+
+/* Keep Leaflet's zoom glide even with "reduce motion" on — index.css zeroes all
+   transitions there, which made zoom jump. 0.25s is Leaflet's own value. */
+@media (prefers-reduced-motion: reduce) {
+  .cookbook-guide-app .leaflet-zoom-anim .leaflet-zoom-animated {
+    transition-duration: 0.25s !important;
+  }
+}
