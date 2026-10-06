@@ -12,6 +12,7 @@ function mapRow(row, currentUserId) {
     id: row.id,
     title: row.title,
     author: row.author,
+    cuisine: row.cuisine || '',
     image: row.image_url || '',
     ingredients: row.ingredients || [],
     instructions: row.instructions || '',
@@ -41,12 +42,13 @@ export async function getRecipes(currentUserId) {
   return data.map((row) => mapRow(row, currentUserId))
 }
 
-export async function addRecipe({ title, author, ingredients, instructions, imageFile }) {
+export async function addRecipe({ title, author, cuisine, ingredients, instructions, imageFile }) {
   const { data: inserted, error } = await sbClient
     .from('recipes')
     .insert({
       title: title.trim(),
       author: author.trim() || 'Eboard Member',
+      cuisine,
       ingredients: cleanIngredients(ingredients),
       instructions: instructions.trim(),
     })
@@ -69,7 +71,7 @@ export async function addRecipe({ title, author, ingredients, instructions, imag
   return inserted.id
 }
 
-export async function updateRecipe(id, { title, author, ingredients, instructions, image, imageFile }) {
+export async function updateRecipe(id, { title, author, cuisine, ingredients, instructions, image, imageFile }) {
   let imageUrl = image || null
   if (imageFile) imageUrl = await uploadRecipePhoto(id, imageFile)
 
@@ -78,6 +80,7 @@ export async function updateRecipe(id, { title, author, ingredients, instruction
     .update({
       title: title.trim(),
       author: author.trim() || 'Eboard Member',
+      cuisine,
       ingredients: cleanIngredients(ingredients),
       instructions: instructions.trim(),
       image_url: imageUrl,

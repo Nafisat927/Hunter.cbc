@@ -11,12 +11,17 @@ import EboardControls from '../cookbook-guide/components/EboardControls'
 import LoginModal from '../cookbook-guide/components/LoginModal'
 import AccountSettingsModal from '../cookbook-guide/components/AccountSettingsModal'
 import Modal from '../cookbook-guide/components/Modal'
+import SingleSelectDropdown from '../cookbook-guide/components/SingleSelectDropdown'
+import { cuisineOptions } from '../cookbook-guide/lib/formOptions'
 import '../cookbook-guide/fonts.css'
 import '../cookbook-guide/cookbook-guide.css'
 import './RecipeBook.css'
 
+const cuisineSelectOptions = cuisineOptions.map((c) => ({ value: c, label: c }))
+
 const emptyForm = {
   title: '',
+  cuisine: '',
   ingredients: '',
   instructions: '',
   image: '', // URL shown in the preview (existing photo or a local preview)
@@ -43,6 +48,7 @@ function RecipeBook() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [dataError, setDataError] = useState('')
+  const [cuisineFilter, setCuisineFilter] = useState([])
 
   // Same Supabase e-board auth the map uses.
   const { currentUser, login, logout } = useAuth()
@@ -54,6 +60,18 @@ function RecipeBook() {
   const [myRecipesOpen, setMyRecipesOpen] = useState(false)
 
   const selected = recipes.find((recipe) => recipe.id === selectedId) ?? null
+
+  // Filter only offers cuisines that some recipe actually uses.
+  const usedCuisines = [...new Set(recipes.map((r) => r.cuisine).filter(Boolean))].sort()
+  const visibleRecipes = cuisineFilter.length
+    ? recipes.filter((r) => cuisineFilter.includes(r.cuisine))
+    : recipes
+
+  function toggleCuisineFilter(cuisine) {
+    setCuisineFilter((prev) =>
+      prev.includes(cuisine) ? prev.filter((c) => c !== cuisine) : [...prev, cuisine],
+    )
+  }
 
   // Reload recipes from Supabase. Pass an id to select that page afterwards.
   const refresh = useCallback(
@@ -94,6 +112,7 @@ function RecipeBook() {
     setImageError('')
     setForm({
       title: recipe.title,
+      cuisine: recipe.cuisine,
       ingredients: recipe.ingredients.join('\n'),
       instructions: recipe.instructions,
       image: recipe.image || '',
@@ -126,12 +145,17 @@ function RecipeBook() {
   async function handleSubmit(event) {
     event.preventDefault()
     if (!form.title.trim() || saving) return
+    if (!form.cuisine) {
+      setImageError('Please choose a cuisine.')
+      return
+    }
 
     const payload = {
       title: form.title,
       // New pages are signed by whoever is logged in (same name format as the map);
       // edits keep the original author.
       author: mode === 'edit' && selected ? selected.author : authorName(currentUser),
+      cuisine: form.cuisine,
       ingredients: form.ingredients.split('\n'),
       instructions: form.instructions,
       // Only keep an existing photo URL; local previews (blob:) aren't real URLs.
@@ -193,13 +217,37 @@ function RecipeBook() {
           <section className="book-page book-page-left">
             <div className="page-heading">
               <h2>Table of Contents</h2>
+              {usedCuisines.length > 0 && (
+                <details className="toc-filter">
+                  <summary className="book-btn">
+                    Filter{cuisineFilter.length ? ` (${cuisineFilter.length})` : ''} ▾
+                  </summary>
+                  <div className="toc-filter-menu">
+                    {usedCuisines.map((cuisine) => (
+                      <label key={cuisine}>
+                        <input
+                          type="checkbox"
+                          checked={cuisineFilter.includes(cuisine)}
+                          onChange={() => toggleCuisineFilter(cuisine)}
+                        />
+                        {cuisine}
+                      </label>
+                    ))}
+                    {cuisineFilter.length > 0 && (
+                      <button type="button" className="toc-filter-clear" onClick={() => setCuisineFilter([])}>
+                        Clear filter
+                      </button>
+                    )}
+                  </div>
+                </details>
+              )}
             </div>
 
             {loading && <p className="recipe-empty-note">Opening the book…</p>}
             {dataError && <p className="image-error">Couldn’t load recipes: {dataError}</p>}
 
             <ol className="toc">
-              {recipes.map((recipe) => (
+              {visibleRecipes.map((recipe) => (
                 <li key={recipe.id}>
                   <button
                     type="button"
@@ -213,6 +261,7 @@ function RecipeBook() {
                       <span className="toc-title">{recipe.title}</span>
                       <span className="toc-author">
                         {recipe.author}
+                        {recipe.cuisine ? ` · ${recipe.cuisine}` : ''}
                         {recipe.owned ? ' · your page' : ''}
                       </span>
                     </span>
@@ -220,6 +269,9 @@ function RecipeBook() {
                 </li>
               ))}
             </ol>
+            {cuisineFilter.length > 0 && visibleRecipes.length === 0 && (
+              <p className="recipe-empty-note">No recipes match that filter.</p>
+            )}
           </section>
 
           <section className="book-page book-page-right">
@@ -236,6 +288,19 @@ function RecipeBook() {
                     placeholder="e.g. Sunday Roast Chicken"
                   />
                 </label>
+
+                <div className="recipe-form-field">
+                  Cuisine
+                  {/* Map's dropdown; the wrapper only scopes its styles (display: contents). */}
+                  <div className="cookbook-guide-app">
+                    <SingleSelectDropdown
+                      placeholder="Select cuisine..."
+                      options={cuisineSelectOptions}
+                      value={form.cuisine}
+                      onChange={(cuisine) => setForm((prev) => ({ ...prev, cuisine }))}
+                    />
+                  </div>
+                </div>
 
                 <label className="image-field">
                   Photograph
@@ -292,7 +357,10 @@ function RecipeBook() {
                   <div>
                     <p className="recipe-kicker">From the collection</p>
                     <h2>{selected.title}</h2>
-                    <p className="recipe-byline">Written by {selected.author}</p>
+                    <p className="recipe-byline">
+                      Written by {selected.author}
+                      {selected.cuisine ? ` · ${selected.cuisine}` : ''}
+                    </p>
                   </div>
                   {isEboard && selected.owned && (
                     <div className="recipe-actions">

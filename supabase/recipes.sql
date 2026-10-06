@@ -16,6 +16,9 @@ create table if not exists public.recipes (
   created_at   timestamptz not null default now()
 );
 
+-- Cuisine (same list as the map). Added later, so this also upgrades an existing table.
+alter table public.recipes add column if not exists cuisine text;
+
 -- 2. Row Level Security (who can do what)
 alter table public.recipes enable row level security;
 
