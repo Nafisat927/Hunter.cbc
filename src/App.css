@@ -49,17 +49,10 @@
   font-weight: 800;
   font-size: clamp(26px, 7vw, 40px);
   color: #1a1a1a;
-  margin: 0;
-  letter-spacing: 0.2px;
+  margin: 0 0 30px;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
   white-space: nowrap;
-}
-
-.subtitle {
-  font-family: 'Baloo 2', system-ui, sans-serif;
-  font-weight: 700;
-  font-size: 20px;
-  color: #1a1a1a;
-  margin: 4px 0 30px;
 }
 
 .links {
@@ -92,6 +85,12 @@
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 10px 20px rgba(219, 129, 173, 0.35);
   background: #ffeaf3;
+}
+
+.link-button:active {
+  transform: scale(0.97);
+  box-shadow: 0 4px 10px rgba(219, 129, 173, 0.3);
+  transition-duration: 0.08s;
 }
 
 .link-icon {

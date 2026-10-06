@@ -1091,3 +1091,37 @@
 .cookbook-guide-app .btn-rec-edit:hover { background: #FFE97A; }
 .cookbook-guide-app .btn-rec-delete { background: #FFE5E5; }
 .cookbook-guide-app .btn-rec-delete:hover { background: #FFBCBC; }
+
+/* ── PRESS FEEDBACK (phones have no hover) ── */
+.cookbook-guide-app :is(.chip, .search-toggle-btn, .back-to-landing-btn, .add-place-btn, .e-btn-primary, .e-btn-secondary, .my-rec-actions button):active {
+  transform: scale(0.96);
+  transition-duration: 0.08s;
+}
+.cookbook-guide-app .gear-menu-item:active { background: #EFEAE0; }
+
+/* ── KEYBOARD FOCUS (several inputs above set outline: none) ── */
+.cookbook-guide-app :focus-visible {
+  outline: 2px solid var(--coral);
+  outline-offset: 2px;
+}
+
+/* ── PHONE LAYOUT ── */
+@media (max-width: 600px) {
+  .cookbook-guide-app .top-bar { top: 10px; left: 10px; right: 10px; }
+  .cookbook-guide-app header {
+    padding: 0;
+    min-height: 0;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .cookbook-guide-app .logo-img img { height: 64px; }
+  .cookbook-guide-app .search-toggle-btn { margin-top: 0; width: 40px; height: 40px; }
+  /* Chips get their own full-width row; the faded right edge shows it scrolls. */
+  .cookbook-guide-app .header-type-row {
+    flex-basis: 100%;
+    padding: 2px 0 6px;
+    -webkit-mask-image: linear-gradient(to right, #000 85%, transparent);
+    mask-image: linear-gradient(to right, #000 85%, transparent);
+  }
+}

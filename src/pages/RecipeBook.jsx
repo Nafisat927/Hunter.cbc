@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   addRecipe,
@@ -41,7 +41,31 @@ function authorName(user) {
   )
 }
 
+// On phones the pages stack, so the right page is off-screen after a tap.
+function scrollToPage(el) {
+  if (!el || !window.matchMedia('(max-width: 860px)').matches) return
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  // Wait a frame so the new page content has rendered.
+  requestAnimationFrame(() =>
+    el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }),
+  )
+}
+
 function RecipeBook() {
+  const rightPageRef = useRef(null)
+  const filterRef = useRef(null)
+
+  // Close the filter dropdown on any click outside it (like the map's menus).
+  useEffect(() => {
+    const close = (e) => {
+      if (filterRef.current?.open && !filterRef.current.contains(e.target)) {
+        filterRef.current.open = false
+      }
+    }
+    document.addEventListener('click', close)
+    return () => document.removeEventListener('click', close)
+  }, [])
+
   const [recipes, setRecipes] = useState([])
   const [selectedId, setSelectedId] = useState(null)
   const [mode, setMode] = useState('view')
@@ -106,6 +130,7 @@ function RecipeBook() {
   }, [refresh])
 
   function openAdd() {
+    scrollToPage(rightPageRef.current)
     setMode('add')
     setForm(emptyForm)
     setImageError('')
@@ -114,6 +139,7 @@ function RecipeBook() {
   function openEdit(recipe = selected) {
     if (!recipe?.owned) return
     setSelectedId(recipe.id)
+    scrollToPage(rightPageRef.current)
     setMode('edit')
     setImageError('')
     setForm({
@@ -213,7 +239,7 @@ function RecipeBook() {
 
       <header className="recipe-book-header">
         <Link to="/" className="recipe-book-back">
-          ← Return to the club
+          ← Back to Cookbook Club
         </Link>
         <h1 className="recipe-book-title">The Cookbook Recipe Book</h1>
       </header>
@@ -226,7 +252,7 @@ function RecipeBook() {
             <div className="page-heading">
               <h2>Table of Contents</h2>
               {(usedCuisines.length > 0 || usedTags.length > 0) && (
-                <details className="toc-filter">
+                <details className="toc-filter" ref={filterRef}>
                   <summary className="book-btn">
                     Filter{filterCount ? ` (${filterCount})` : ''} ▾
                   </summary>
@@ -281,6 +307,7 @@ function RecipeBook() {
                     onClick={() => {
                       setSelectedId(recipe.id)
                       setMode('view')
+                      scrollToPage(rightPageRef.current)
                     }}
                   >
                     <span className="toc-text">
@@ -300,7 +327,7 @@ function RecipeBook() {
             )}
           </section>
 
-          <section className="book-page book-page-right">
+          <section className="book-page book-page-right" ref={rightPageRef}>
             {mode === 'add' || mode === 'edit' ? (
               <form className="recipe-form" onSubmit={handleSubmit}>
                 <h2>{mode === 'add' ? 'Write a New Recipe' : 'Amend Your Recipe'}</h2>
@@ -427,7 +454,12 @@ function RecipeBook() {
 
                 {selected.image && (
                   <figure className="recipe-photo">
-                    <img src={selected.image} alt={selected.title} />
+                    <img
+                      src={selected.image}
+                      alt={selected.title}
+                      // Hide a dead photo link instead of showing a broken-image icon.
+                      onError={(e) => (e.currentTarget.parentElement.hidden = true)}
+                    />
                   </figure>
                 )}
 

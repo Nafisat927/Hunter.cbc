@@ -17,3 +17,21 @@ body {
 #root {
   min-height: 100svh;
 }
+
+/* Visible keyboard focus everywhere (mouse clicks don't trigger :focus-visible). */
+:focus-visible {
+  outline: 2px solid #c2185b;
+  outline-offset: 2px;
+}
+
+/* Respect the OS "reduce motion" setting: no looping/entrance/hover motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

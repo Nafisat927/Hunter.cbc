@@ -55,7 +55,7 @@ const links = [
     internal: true,
   },
   {
-    label: 'The CookBook Recipe Book',
+    label: 'The Cookbook Recipe Book',
     to: '/recipe-book',
     icon: <span className="link-emoji" aria-hidden="true">📖</span>,
     internal: true,
@@ -71,7 +71,6 @@ function Landing() {
         </div>
 
         <h1 className="title">Cookbook Club</h1>
-        <p className="subtitle"></p>
 
         <div className="links">
           {links.map((link) =>

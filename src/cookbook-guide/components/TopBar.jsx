@@ -17,12 +17,12 @@ export default function TopBar({ filters, filterPanelOpen, onToggleFilterPanel }
       <header>
         <div className="logo-col">
           <Link to="/" className="back-to-landing-btn">
-            ← Back to Hunter.cbc
+            ← Back to Cookbook Club
           </Link>
 
           <div className="logo-block">
             <div className="logo-img">
-              <img src={logoDataUri} alt="CookBook Guide" />
+              <img src={logoDataUri} alt="Cookbook Guide" />
             </div>
           </div>
         </div>

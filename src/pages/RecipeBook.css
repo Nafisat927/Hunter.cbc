@@ -98,6 +98,7 @@
   line-height: 1.05;
   color: #f4e7c8;
   margin: 0;
+  letter-spacing: -0.01em;
   text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
 }
 
@@ -564,6 +565,80 @@
 /* Scope wrapper for the map's e-board controls; children are all position: fixed. */
 .recipe-book-page .cookbook-guide-app {
   display: contents;
+  /* Re-skin the map's components to the book: its CSS reads these variables. */
+  --coral: #8f6d2e;
+  --ink: var(--leather);
+}
+
+/* Book typeface + parchment surfaces for the shared modal, menu and dropdowns.
+   `body` prefix outranks the map's own `.cookbook-guide-app .x` rules. */
+body .recipe-book-page .cookbook-guide-app * {
+  font-family: 'Libre Baskerville', Georgia, serif;
+}
+
+body .recipe-book-page .cookbook-guide-app :is(.e-title, .my-rec-name) {
+  font-family: 'Forward Serif', Georgia, serif;
+  font-weight: 400;
+  font-size: 1.2rem;
+}
+
+body .recipe-book-page .cookbook-guide-app :is(.e-modal, .gear-menu, .tags-ms-dropdown) {
+  background: var(--parchment);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+}
+
+body .recipe-book-page .cookbook-guide-app :is(.e-input, .tags-ms-display, .tags-ms-search) {
+  background: rgba(255, 252, 245, 0.9);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+}
+
+body .recipe-book-page .cookbook-guide-app :is(.e-header, .my-rec-row) {
+  border-color: rgba(168, 137, 95, 0.35);
+}
+
+body .recipe-book-page .cookbook-guide-app :is(.e-close, .e-btn-secondary, .gear-menu-item:hover, .tags-ms-option:hover, .btn-rec-edit) {
+  background: var(--parchment-deep);
+}
+
+body .recipe-book-page .cookbook-guide-app :is(.e-btn-primary, .add-place-btn) {
+  background: linear-gradient(180deg, #d8b86a, #b8923f);
+  color: #24180c;
+  border: 1px solid #8f6d2e;
+  border-radius: 2px;
+  box-shadow: 1px 2px 0 rgba(42, 33, 24, 0.25);
+}
+
+body .recipe-book-page .cookbook-guide-app :is(.tags-ms-option.selected, .btn-rec-delete) {
+  background: rgba(196, 163, 90, 0.25);
+}
+
+body .recipe-book-page .cookbook-guide-app .tags-ms-pill {
+  background: var(--leather);
+  border-radius: 2px;
+}
+
+/* Gear sits at the bottom of the page instead of floating over recipe text. */
+body .recipe-book-page .cookbook-guide-app .eboard-trigger {
+  position: absolute;
+  bottom: 14px;
+}
+
+body .recipe-book-page .cookbook-guide-app .gear-menu {
+  position: absolute;
+  bottom: 56px;
+}
+
+/* Press feedback (phones have no hover) and keyboard focus. */
+:is(.book-btn, .toc-item, .recipe-book-back):active {
+  transform: scale(0.97);
+  transition-duration: 0.08s;
+}
+
+.recipe-book-page :focus-visible {
+  outline: 2px solid var(--gilt);
+  outline-offset: 2px;
 }
 
 @media (max-width: 860px) {
@@ -592,5 +667,19 @@
 
   .recipe-detail-top {
     flex-direction: column;
+  }
+
+  /* Big serif headings wrapped to two lines on phones. */
+  .page-heading h2,
+  .recipe-detail h2,
+  .recipe-form h2 {
+    font-size: 24px;
+    line-height: 1.15;
+  }
+
+  /* Pages stack, so the top-right button would sit on the title; dock it bottom-right. */
+  body .recipe-book-page .cookbook-guide-app .add-place-btn {
+    top: auto;
+    bottom: 20px;
   }
 }
