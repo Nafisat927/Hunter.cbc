@@ -588,6 +588,17 @@ body .recipe-book-page .cookbook-guide-app :is(.e-modal, .gear-menu, .tags-ms-dr
   border-radius: 4px;
 }
 
+/* No glass on paper: drop the map's frosted sheen and blur. */
+body .recipe-book-page .cookbook-guide-app :is(.e-modal, .gear-menu) {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: 2px 6px 24px rgba(42, 33, 24, 0.35);
+}
+
+body .recipe-book-page .cookbook-guide-app :is(.e-modal, .gear-menu)::before {
+  content: none;
+}
+
 body .recipe-book-page .cookbook-guide-app :is(.e-input, .tags-ms-display, .tags-ms-search) {
   background: rgba(255, 252, 245, 0.9);
   border: 1px solid var(--rule);

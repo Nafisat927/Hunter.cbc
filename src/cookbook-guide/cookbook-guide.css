@@ -90,11 +90,8 @@
 }
 
 /* ── SIDE PANEL ── */
-.cookbook-guide-app .side-panel {
-  width: clamp(300px, 22vw, 600px);
-  max-height: calc(100% - 96px);
-  flex-shrink: 0;
-  position: absolute;
+/* Frosted glass shared by the place panel, the modals and the gear menu. */
+.cookbook-guide-app :is(.side-panel, .e-modal, .gear-menu) {
   background: linear-gradient(
     155deg,
     rgba(255, 255, 255, 0.55) 0%,
@@ -104,21 +101,12 @@
   backdrop-filter: blur(26px) saturate(180%);
   -webkit-backdrop-filter: blur(26px) saturate(200%);
   border: 1px solid rgba(255, 255, 255, 0.6);
-  border-radius: 18px;
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.7),
     inset 0 0 40px rgba(255, 255, 255, 0.12);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  z-index: 1100;
-  transform: translateX(calc(100% + 16px));
-  right: 16px;
-  top: 80px;
-  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.cookbook-guide-app .side-panel::before {
+.cookbook-guide-app :is(.side-panel, .e-modal, .gear-menu)::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -131,6 +119,22 @@
     rgba(255, 255, 255, 0.25) 100%
   );
   mix-blend-mode: overlay;
+}
+
+.cookbook-guide-app .side-panel {
+  width: clamp(300px, 22vw, 600px);
+  max-height: calc(100% - 96px);
+  flex-shrink: 0;
+  position: absolute;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 1100;
+  transform: translateX(calc(100% + 16px));
+  right: 16px;
+  top: 80px;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .cookbook-guide-app .side-panel.open {
   transform: translateX(0);
@@ -707,9 +711,7 @@
   position: fixed;
   bottom: 62px;
   left: 16px;
-  background: #fff;
   border-radius: 14px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
   overflow: hidden;
   z-index: 2001;
   min-width: 180px;
@@ -731,7 +733,7 @@
   align-items: center;
   gap: 10px;
 }
-.cookbook-guide-app .gear-menu-item:hover { background: #F8F5EE; }
+.cookbook-guide-app .gear-menu-item:hover { background: rgba(255, 255, 255, 0.45); }
 .cookbook-guide-app .gear-menu-item.danger { color: var(--coral); }
 
 .cookbook-guide-app .add-place-btn {
@@ -771,10 +773,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: #fff;
   border-radius: 18px;
   z-index: 2003;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
   flex-direction: column;
   max-height: 88vh;
   overflow: hidden;
