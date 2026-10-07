@@ -16,10 +16,6 @@ export default function TopBar({ filters, filterPanelOpen, onToggleFilterPanel }
     <div className="top-bar">
       <header>
         <div className="logo-col">
-          <Link to="/" className="back-to-landing-btn">
-            ← Back to Cookbook Club
-          </Link>
-
           <div className="logo-block">
             <div className="logo-img">
               <img src={logoDataUri} alt="Cookbook Guide" />
@@ -27,37 +23,45 @@ export default function TopBar({ filters, filterPanelOpen, onToggleFilterPanel }
           </div>
         </div>
 
-        <button
-          className={`search-toggle-btn${anySecondaryActive ? ' has-active' : ''}`}
-          title="More filters"
-          onClick={onToggleFilterPanel}
-        >
-          🔍
-        </button>
+        <div className="controls-col">
+          <Link to="/" className="back-to-landing-btn">
+            ← Back to Cookbook Club
+          </Link>
 
-        <div className="header-type-row">
-          <button
-            className={`chip${activeTypes.has('all') ? ' active' : ''}`}
-            data-cat="all"
-            onClick={() => toggleType('all')}
-          >
-            🗺️ All
-            <span className="count-badge">{typeCounts.__total ?? ''}</span>
-          </button>
-          {typeConfig
-            .slice()
-            .sort((a, b) => (typeCounts[b.cat] || 0) - (typeCounts[a.cat] || 0))
-            .map(({ cat, label, emoji }) => (
+          <div className="controls-row">
+            <button
+              className={`search-toggle-btn${anySecondaryActive ? ' has-active' : ''}`}
+              title="More filters"
+              onClick={onToggleFilterPanel}
+            >
+              🔍
+            </button>
+
+            <div className="header-type-row">
               <button
-                key={cat}
-                className={`chip${activeTypes.has(cat) ? ' active' : ''}`}
-                data-cat={cat}
-                onClick={() => toggleType(cat)}
+                className={`chip${activeTypes.has('all') ? ' active' : ''}`}
+                data-cat="all"
+                onClick={() => toggleType('all')}
               >
-                {emoji} {label}
-                {typeCounts[cat] ? <span className="count-badge">{typeCounts[cat]}</span> : null}
+                🗺️ All
+                <span className="count-badge">{typeCounts.__total ?? ''}</span>
               </button>
-            ))}
+              {typeConfig
+                .slice()
+                .sort((a, b) => (typeCounts[b.cat] || 0) - (typeCounts[a.cat] || 0))
+                .map(({ cat, label, emoji }) => (
+                  <button
+                    key={cat}
+                    className={`chip${activeTypes.has(cat) ? ' active' : ''}`}
+                    data-cat={cat}
+                    onClick={() => toggleType(cat)}
+                  >
+                    {emoji} {label}
+                    {typeCounts[cat] ? <span className="count-badge">{typeCounts[cat]}</span> : null}
+                  </button>
+                ))}
+            </div>
+          </div>
         </div>
       </header>
     </div>

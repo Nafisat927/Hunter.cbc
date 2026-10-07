@@ -351,6 +351,24 @@
   flex-shrink: 0;
 }
 
+/* Back link sits above the filter button + type bar, to the right of the logo. */
+.cookbook-guide-app .controls-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.cookbook-guide-app .controls-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  min-width: 0;
+}
+/* Let the chip row shrink and scroll instead of overflowing the column. */
+.cookbook-guide-app .controls-row .header-type-row { min-width: 0; }
+
 .cookbook-guide-app .back-to-landing-btn {
   display: inline-flex;
   align-items: center;
@@ -1115,8 +1133,10 @@
     align-items: center;
     justify-content: space-between;
   }
-  /* Row 1: logo, then the back link under it. Row 2: filter button, then the scrolling chips. */
-  .cookbook-guide-app .logo-col { flex-basis: 100%; flex-direction: column-reverse; }
+  /* Row 1: logo. Row 2: back link. Row 3: filter button, then the scrolling chips. */
+  .cookbook-guide-app .logo-col,
+  .cookbook-guide-app .controls-col { flex-basis: 100%; }
+  .cookbook-guide-app .controls-row { gap: 8px; align-items: center; }
   .cookbook-guide-app .logo-img img { height: 64px; }
   .cookbook-guide-app .search-toggle-btn {
     margin-top: 0;
