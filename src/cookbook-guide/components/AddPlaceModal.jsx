@@ -10,6 +10,17 @@ import { uploadPhotos } from '../lib/photoUpload';
 import PhotoUploadField from './PhotoUploadField';
 
 const cuisineSelectOptions = cuisineOptions.map((c) => ({ value: c, label: c }));
+const priceSelectOptions = [
+  { value: '1', label: '$ ($1–25)' },
+  { value: '2', label: '$$ ($25–50)' },
+  { value: '3', label: '$$$ ($50–100)' },
+  { value: '4', label: '$$$$ ($100+)' },
+];
+const ratingSelectOptions = [
+  { value: '1', label: '👍 Good' },
+  { value: '2', label: '👍👍 Great' },
+  { value: '3', label: '👍👍👍 Amazing' },
+];
 
 const emptyForm = {
   name: '',
@@ -276,28 +287,23 @@ export default function AddPlaceModal({ open, onClose, currentUser, editingPlace
           onBlur={handleAddressBlur}
         />
 
-        <select
-          className="e-input"
+        {/* Same in-app dropdown as Category/Cuisine, so the list opens right under the box
+            (the browser's native <select> popup can open far from it on phones). */}
+        <SingleSelectDropdown
+          placeholder="Price *"
+          options={priceSelectOptions}
           value={form.price}
-          onChange={(e) => updateField('price', e.target.value)}
-        >
-          <option value="">Price *</option>
-          <option value="1">$ ($1–25)</option>
-          <option value="2">$$ ($25–50)</option>
-          <option value="3">$$$ ($50–100)</option>
-          <option value="4">$$$$ ($100+)</option>
-        </select>
+          onChange={(v) => updateField('price', v)}
+          searchable={false}
+        />
 
-        <select
-          className="e-input"
+        <SingleSelectDropdown
+          placeholder="Rating *"
+          options={ratingSelectOptions}
           value={form.rating}
-          onChange={(e) => updateField('rating', e.target.value)}
-        >
-          <option value="">Rating *</option>
-          <option value="1">👍 Good</option>
-          <option value="2">👍👍 Great</option>
-          <option value="3">👍👍👍 Amazing</option>
-        </select>
+          onChange={(v) => updateField('rating', v)}
+          searchable={false}
+        />
 
         <div className="span2">
           <TagsMultiSelect value={form.tags} onChange={(v) => updateField('tags', v)} />

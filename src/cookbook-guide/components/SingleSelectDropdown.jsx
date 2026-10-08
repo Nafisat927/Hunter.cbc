@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 
-export default function SingleSelectDropdown({ placeholder, options, value, onChange }) {
+export default function SingleSelectDropdown({
+  placeholder,
+  options,
+  value,
+  onChange,
+  searchable = true,
+}) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const ref = useRef(null);
@@ -31,14 +37,16 @@ export default function SingleSelectDropdown({ placeholder, options, value, onCh
       </div>
       {open && (
         <div className="tags-ms-dropdown">
-          <input
-            type="text"
-            className="tags-ms-search"
-            placeholder="Search..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            autoFocus
-          />
+          {searchable && (
+            <input
+              type="text"
+              className="tags-ms-search"
+              placeholder="Search..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              autoFocus
+            />
+          )}
           {filtered.map((o) => (
             <div
               key={o.value}
