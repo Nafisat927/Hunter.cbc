@@ -7,6 +7,7 @@ const typeConfig = [
   { cat: 'dessert', label: 'Dessert', emoji: '🍰' },
   { cat: 'boba', label: 'Boba', emoji: '🧋' },
   { cat: 'bar', label: 'Bar', emoji: '🍸' },
+  { cat: 'takeout', label: 'Takeout', emoji: '🥡' },
 ];
 
 export default function TopBar({ filters, filterPanelOpen, onToggleFilterPanel }) {

@@ -429,6 +429,7 @@
 .cookbook-guide-app .chip[data-cat="dessert"].active { background: #F0E5FF; border-color: var(--plum); color: var(--plum); }
 .cookbook-guide-app .chip[data-cat="boba"].active { background: #E5F5FF; border-color: var(--sky); color: #1a7bb5; }
 .cookbook-guide-app .chip[data-cat="bar"].active { background: #E5F9E8; border-color: var(--mint); color: #2d8a3a; }
+.cookbook-guide-app .chip[data-cat="takeout"].active { background: #FFEDD5; border-color: #F97316; color: #C2410C; }
 
 .cookbook-guide-app .search-toggle-btn {
   display: flex;

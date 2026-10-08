@@ -4,6 +4,7 @@ export const categoryOptions = [
   { value: 'dessert',    label: '🍰 Dessert' },
   { value: 'boba',       label: '🧋 Boba' },
   { value: 'bar',        label: '🍸 Bar' },
+  { value: 'takeout',    label: '🥡 Takeout' },
 ];
 
 export const cuisineOptions = [

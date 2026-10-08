@@ -4,6 +4,7 @@ export const catConfig = {
   dessert:    { emoji: '🍰', color: '#C77DFF', bg: '#F0E5FF', label: 'Dessert' },
   boba:       { emoji: '🧋', color: '#1a7bb5', bg: '#E5F5FF', label: 'Boba' },
   bar:        { emoji: '🍸', color: '#2d8a3a', bg: '#E5F9E8', label: 'Bar' },
+  takeout:    { emoji: '🥡', color: '#C2410C', bg: '#FFEDD5', label: 'Takeout' },
 };
 
 export const cuisineEmoji = {
