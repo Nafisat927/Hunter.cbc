@@ -958,6 +958,21 @@
 }
 .cookbook-guide-app .tags-ms-option:hover { background: #F8F5EE; }
 .cookbook-guide-app .tags-ms-option.selected { background: #FFE5E5; color: var(--coral); font-weight: 600; }
+/* Place search suggestions (PlaceSearch.jsx) are buttons so they're keyboard-reachable. */
+.cookbook-guide-app .place-search-option {
+  width: 100%;
+  border: none;
+  background: none;
+  text-align: left;
+}
+.cookbook-guide-app .place-search-option strong { font-weight: 600; }
+.cookbook-guide-app .place-search-secondary {
+  display: block;
+  margin-top: 1px;
+  font-size: 0.75rem;
+  color: rgba(26, 26, 46, 0.5);
+}
+
 .cookbook-guide-app .tags-ms-create {
   padding: 7px 10px;
   border-radius: 8px;

@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Modal from './Modal';
+import PlaceSearch from './PlaceSearch';
 import SingleSelectDropdown from './SingleSelectDropdown';
 import TagsMultiSelect from './TagsMultiSelect';
 import DishesInput from './DishesInput';
 import { categoryOptions, cuisineOptions } from '../lib/formOptions';
 import { sbClient } from '../lib/supabaseClient';
-import { loadGoogleMaps, geocodeAddress } from '../lib/googleMapsLoader';
+import { geocodeAddress } from '../lib/googleMapsLoader';
 import { uploadPhotos } from '../lib/photoUpload';
 import PhotoUploadField from './PhotoUploadField';
 
@@ -44,8 +45,6 @@ export default function AddPlaceModal({ open, onClose, currentUser, editingPlace
   const [saving, setSaving] = useState(false);
   const [existingPhotoUrls, setExistingPhotoUrls] = useState([]);
   const [pendingPhotoFiles, setPendingPhotoFiles] = useState([]);
-  const autocompleteContainerRef = useRef(null);
-  const autocompleteElRef = useRef(null);
 
   // Populate the form when editing, reset when adding fresh.
   useEffect(() => {
@@ -75,69 +74,36 @@ export default function AddPlaceModal({ open, onClose, currentUser, editingPlace
     }
   }, [open, editingPlace]);
 
-  // Set up the Google Places autocomplete element once the modal is open.
-  useEffect(() => {
-    if (!open || !autocompleteContainerRef.current) return;
-    let cancelled = false;
-
-    loadGoogleMaps()
-      .then((google) => {
-        if (cancelled || !autocompleteContainerRef.current) return;
-        // Clear any previous element (e.g. modal re-opened)
-        autocompleteContainerRef.current.innerHTML = '';
-
-        const el = new google.maps.places.PlaceAutocompleteElement({
-          types: ['establishment'],
-        });
-        el.style.cssText = 'width:100%;display:block;';
-        el.style.setProperty('color-scheme', 'light');
-        el.style.setProperty('background-color', '#FAFAF8');
-        el.style.setProperty('color', 'var(--ink)');
-        el.style.setProperty('border', '1.5px solid #E8E4DC');
-        el.style.setProperty('border-radius', '10px');
-        el.setAttribute('placeholder', 'Search for a place (auto-fills name, address & coords)');
-        autocompleteContainerRef.current.appendChild(el);
-        autocompleteElRef.current = el;
-
-        ['gmp-placeselect', 'gmp-select'].forEach((evtName) => {
-          el.addEventListener(evtName, async (e) => {
-            const place = e.place || e.placePrediction?.toPlace?.();
-            if (!place) return;
-            try {
-              await place.fetchFields({
-                fields: ['displayName', 'formattedAddress', 'location', 'googleMapsURI'],
-              });
-              const lat = place.location.lat();
-              const lng = place.location.lng();
-              const mapsUrl =
-                place.googleMapsURI ||
-                `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-              setForm((f) => ({
-                ...f,
-                name: f.name || place.displayName || '',
-                address: place.formattedAddress || '',
-                lat,
-                lng,
-                mapsUrl,
-              }));
-              setSearchStatus('✅ Details filled in');
-              setTimeout(() => setSearchStatus(''), 3000);
-            } catch (err) {
-              console.error('Place fetch error:', err);
-              setSearchStatus('⚠️ Could not get details');
-            }
-          });
-        });
-      })
-      .catch((err) => {
-        console.error(err);
-        setSearchStatus('⚠️ Place search unavailable (check VITE_GOOGLE_MAPS_KEY)');
+  // A suggestion was picked in PlaceSearch: pull its details into the form.
+  const handlePlaceSelect = async (place) => {
+    try {
+      await place.fetchFields({
+        fields: ['displayName', 'formattedAddress', 'location', 'googleMapsURI'],
       });
+      const lat = place.location.lat();
+      const lng = place.location.lng();
+      const mapsUrl =
+        place.googleMapsURI || `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+      setForm((f) => ({
+        ...f,
+        name: f.name || place.displayName || '',
+        address: place.formattedAddress || '',
+        lat,
+        lng,
+        mapsUrl,
+      }));
+      setSearchStatus('✅ Details filled in');
+      setTimeout(() => setSearchStatus(''), 3000);
+    } catch (err) {
+      console.error('Place fetch error:', err);
+      setSearchStatus('⚠️ Could not get details');
+    }
+  };
 
-    return () => {
-      cancelled = true;
-    };
-  }, [open]);
+  const handleSearchUnavailable = useCallback(
+    () => setSearchStatus('⚠️ Place search unavailable (check VITE_GOOGLE_MAPS_KEY)'),
+    []
+  );
 
   const updateField = (field, val) => setForm((f) => ({ ...f, [field]: val }));
 
@@ -250,7 +216,7 @@ export default function AddPlaceModal({ open, onClose, currentUser, editingPlace
     >
       <div className="add-form-grid">
         <div className="span2" style={{ position: 'relative' }}>
-          <div ref={autocompleteContainerRef} />
+          <PlaceSearch onSelect={handlePlaceSelect} onUnavailable={handleSearchUnavailable} />
           <div style={{ fontSize: '0.78rem', color: 'rgba(26,26,46,0.55)', marginTop: 4, minHeight: 16 }}>
             {searchStatus}
           </div>
