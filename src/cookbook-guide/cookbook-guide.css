@@ -1153,6 +1153,12 @@
     mask-image: linear-gradient(to right, #000 85%, transparent);
   }
 
+  /* At the top the banner hid behind the logo/chips; center it on the map instead. */
+  .cookbook-guide-app .status-banner {
+    top: 40%;
+    transform: translate(-50%, -50%);
+  }
+
   /* Filters and the place panel become full-width bottom sheets;
      each slides out the same way it came in. */
   .cookbook-guide-app :is(.filter-panel, .side-panel) {
