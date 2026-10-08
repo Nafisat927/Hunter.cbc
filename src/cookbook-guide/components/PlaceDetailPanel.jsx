@@ -14,6 +14,7 @@ export default function PlaceDetailPanel({ place, onClose, currentUser, onEdit }
         {place && (
           <div className="panel-body">
             <div className="panel-name-row">
+              <span className="badge-emoji">{cfg.emoji}</span>
               <span
                 className="cat-badge"
                 style={{ background: cfg.bg, color: cfg.color }}
@@ -29,7 +30,6 @@ export default function PlaceDetailPanel({ place, onClose, currentUser, onEdit }
             </div>
 
             <div className="panel-name">
-              <span className="badge-emoji">{cfg.emoji}</span>
               <span>{place.name}</span>
               {place.maps_url && (
                 <a
