@@ -31,20 +31,22 @@ export default function PlaceDetailPanel({ place, onClose, currentUser, onEdit }
 
             <div className="panel-name">
               <span>{place.name}</span>
-              {place.maps_url && (
-                <a
-                  href={place.maps_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="maps-link-btn"
-                  title="Open in Google Maps"
-                >
-                  ↗
-                </a>
-              )}
             </div>
 
-            <div className="panel-address">📍 {place.address}</div>
+            <div className="panel-address">
+              📍{' '}
+              <a
+                href={
+                  place.maps_url ||
+                  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.address)}`
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Open in Google Maps"
+              >
+                {place.address}
+              </a>
+            </div>
 
             <div className="panel-section-label">Recommended by</div>
             <div className="panel-recommender">

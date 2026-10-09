@@ -186,22 +186,6 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-.cookbook-guide-app .maps-link-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: #F0EDE4;
-  color: var(--ink);
-  font-size: 0.85rem;
-  text-decoration: none;
-  transition: background 0.15s;
-  flex-shrink: 0;
-  margin-left: 4px;
-}
-.cookbook-guide-app .maps-link-btn:hover { background: #E0DCD2; }
 
 .cookbook-guide-app .badge-emoji { font-size: 1.2rem; line-height: 1; }
 
@@ -236,6 +220,12 @@
   color: rgba(26, 26, 46, 0.5);
   margin-bottom: 16px;
 }
+.cookbook-guide-app .panel-address a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.cookbook-guide-app .panel-address a:hover { color: var(--ink); }
 
 .cookbook-guide-app .panel-recommender {
   display: flex;
