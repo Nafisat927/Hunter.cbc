@@ -22,7 +22,6 @@ function mapRow(row) {
     tags: row.tags || [],
     photos: row.photos || [],
     price: row.price,
-    rating: row.rating,
     maps_url: row.maps_url || null,
   };
 }

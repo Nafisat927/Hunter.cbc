@@ -17,11 +17,6 @@ const priceSelectOptions = [
   { value: '3', label: '$$$ ($50–100)' },
   { value: '4', label: '$$$$ ($100+)' },
 ];
-const ratingSelectOptions = [
-  { value: '1', label: '👍 Good' },
-  { value: '2', label: '👍👍 Great' },
-  { value: '3', label: '👍👍👍 Amazing' },
-];
 
 const emptyForm = {
   name: '',
@@ -31,7 +26,6 @@ const emptyForm = {
   lat: null,
   lng: null,
   price: '',
-  rating: '',
   dishes: [],
   tags: [],
   notes: '',
@@ -59,7 +53,6 @@ export default function AddPlaceModal({ open, onClose, currentUser, editingPlace
               lat: editingPlace.lat,
               lng: editingPlace.lng,
               price: String(editingPlace.price || ''),
-              rating: String(editingPlace.rating || ''),
               dishes: editingPlace.dishes || [],
               tags: editingPlace.tags || [],
               notes: editingPlace.notes || '',
@@ -130,8 +123,7 @@ export default function AddPlaceModal({ open, onClose, currentUser, editingPlace
       !form.category ||
       !form.cuisine ||
       !form.address.trim() ||
-      !form.price ||
-      !form.rating
+      !form.price
     ) {
       setError('Please fill in all required fields (*)');
       return;
@@ -173,7 +165,6 @@ export default function AddPlaceModal({ open, onClose, currentUser, editingPlace
       tags: form.tags,
       notes: form.notes.trim(),
       price: parseInt(form.price),
-      rating: parseInt(form.rating),
       maps_url: form.mapsUrl || null,
     };
 
@@ -255,21 +246,15 @@ export default function AddPlaceModal({ open, onClose, currentUser, editingPlace
 
         {/* Same in-app dropdown as Category/Cuisine, so the list opens right under the box
             (the browser's native <select> popup can open far from it on phones). */}
-        <SingleSelectDropdown
-          placeholder="Price *"
-          options={priceSelectOptions}
-          value={form.price}
-          onChange={(v) => updateField('price', v)}
-          searchable={false}
-        />
-
-        <SingleSelectDropdown
-          placeholder="Rating *"
-          options={ratingSelectOptions}
-          value={form.rating}
-          onChange={(v) => updateField('rating', v)}
-          searchable={false}
-        />
+        <div className="span2">
+          <SingleSelectDropdown
+            placeholder="Price *"
+            options={priceSelectOptions}
+            value={form.price}
+            onChange={(v) => updateField('price', v)}
+            searchable={false}
+          />
+        </div>
 
         <div className="span2">
           <TagsMultiSelect value={form.tags} onChange={(v) => updateField('tags', v)} />

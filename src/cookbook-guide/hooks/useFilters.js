@@ -22,7 +22,6 @@ export function useFilters(places) {
   const [activeTypes, setActiveTypes] = useState(new Set(['all']));
   const [activeCuisines, setActiveCuisines] = useState(new Set(['all']));
   const [activePrices, setActivePrices] = useState(new Set(['all']));
-  const [activeRatings, setActiveRatings] = useState(new Set(['all']));
   const [activeTags, setActiveTags] = useState(new Set());
 
   const typeCounts = useMemo(() => {
@@ -51,8 +50,6 @@ export function useFilters(places) {
     setActiveCuisines((s) => toggle(s, val, 'all', sortedCuisines));
   const togglePrice = (val) =>
     setActivePrices((s) => toggle(s, val, 'all', ['1', '2', '3', '4']));
-  const toggleRating = (val) =>
-    setActiveRatings((s) => toggle(s, val, 'all', ['1', '2', '3']));
   const toggleTag = (tag) =>
     setActiveTags((s) => {
       const next = new Set(s);
@@ -66,24 +63,21 @@ export function useFilters(places) {
       const matchCuisine = activeCuisines.has('all') || activeCuisines.has(p.cuisine);
       const matchPrice =
         activePrices.has('all') || !p.price || activePrices.has(String(p.price));
-      const matchRating =
-        activeRatings.has('all') || !p.rating || activeRatings.has(String(p.rating));
       const matchTags =
         activeTags.size === 0 ||
         (p.tags && p.tags.some((t) => activeTags.has(t)));
-      return matchType && matchCuisine && matchPrice && matchRating && matchTags;
+      return matchType && matchCuisine && matchPrice && matchTags;
     });
-  }, [places, activeTypes, activeCuisines, activePrices, activeRatings, activeTags]);
+  }, [places, activeTypes, activeCuisines, activePrices, activeTags]);
 
   const anySecondaryActive =
     !activeCuisines.has('all') ||
     !activePrices.has('all') ||
-    !activeRatings.has('all') ||
     activeTags.size > 0;
 
   return {
-    activeTypes, activeCuisines, activePrices, activeRatings, activeTags,
-    toggleType, toggleCuisine, togglePrice, toggleRating, toggleTag,
+    activeTypes, activeCuisines, activePrices, activeTags,
+    toggleType, toggleCuisine, togglePrice, toggleTag,
     typeCounts, sortedCuisines,
     filteredPlaces, anySecondaryActive,
   };

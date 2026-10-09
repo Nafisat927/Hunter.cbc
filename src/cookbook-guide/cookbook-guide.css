@@ -541,7 +541,7 @@
   align-items: center;
 }
 
-.cookbook-guide-app .chip-cuisine, .cookbook-guide-app .chip-price, .cookbook-guide-app .chip-rating {
+.cookbook-guide-app .chip-cuisine, .cookbook-guide-app .chip-price {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -557,8 +557,8 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   color: var(--font);
 }
-.cookbook-guide-app .chip-cuisine:hover, .cookbook-guide-app .chip-price:hover, .cookbook-guide-app .chip-rating:hover { transform: translateY(-1px); }
-.cookbook-guide-app .chip-cuisine.active, .cookbook-guide-app .chip-price.active, .cookbook-guide-app .chip-rating.active {
+.cookbook-guide-app .chip-cuisine:hover, .cookbook-guide-app .chip-price:hover { transform: translateY(-1px); }
+.cookbook-guide-app .chip-cuisine.active, .cookbook-guide-app .chip-price.active {
   background: var(--ink);
   color: #fff;
   border-color: var(--ink);

@@ -9,12 +9,6 @@ const priceOptions = [
   { val: '4', label: '$$$$' },
 ];
 
-const ratingOptions = [
-  { val: '1', label: '👍' },
-  { val: '2', label: '👍👍' },
-  { val: '3', label: '👍👍👍' },
-];
-
 function collectTags(places) {
   const set = new Set(predefinedTags);
   places.forEach((p) => (p.tags || []).forEach((t) => set.add(t)));
@@ -23,8 +17,8 @@ function collectTags(places) {
 
 export default function FilterPanel({ open, onClose, filters, places }) {
   const {
-    activeCuisines, activePrices, activeRatings, activeTags,
-    toggleCuisine, togglePrice, toggleRating, toggleTag,
+    activeCuisines, activePrices, activeTags,
+    toggleCuisine, togglePrice, toggleTag,
     sortedCuisines,
   } = filters;
 
@@ -32,7 +26,6 @@ export default function FilterPanel({ open, onClose, filters, places }) {
   const [tagSearch, setTagSearch] = useState('');
   const [customTags, setCustomTags] = useState([]);
   const [priceInfoOpen, setPriceInfoOpen] = useState(false);
-  const [ratingInfoOpen, setRatingInfoOpen] = useState(false);
 
   const allTags = collectTags(places);
   const combinedTags = [...new Set([...allTags, ...customTags])];
@@ -109,41 +102,6 @@ export default function FilterPanel({ open, onClose, filters, places }) {
                   </span>
                 </div>
               ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="filter-section">
-          <div className="filter-section-title">Rating</div>
-          <div className="filter-section-chips">
-            <button
-              className={`chip-rating${activeRatings.has('all') ? ' active' : ''}`}
-              onClick={() => toggleRating('all')}
-            >
-              ⭐ All
-            </button>
-            {ratingOptions.map(({ val, label }) => (
-              <button
-                key={val}
-                className={`chip-rating${activeRatings.has(val) ? ' active' : ''}`}
-                onClick={() => toggleRating(val)}
-              >
-                {label}
-              </button>
-            ))}
-            <div className="price-info-wrap">
-              <button
-                className="price-info-btn"
-                onClick={() => setRatingInfoOpen((o) => !o)}
-              >
-                𝐢
-              </button>
-              <div className={`price-tooltip${ratingInfoOpen ? ' visible' : ''}`}>
-                <strong>Rating</strong>
-                <span>👍 = Good</span>
-                <span>👍👍 = Great</span>
-                <span>👍👍👍 = Amazing</span>
-              </div>
             </div>
           </div>
         </div>
