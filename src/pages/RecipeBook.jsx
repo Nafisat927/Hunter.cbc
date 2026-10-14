@@ -32,6 +32,15 @@ const emptyForm = {
 
 const MAX_IMAGE_BYTES = 5_000_000
 
+// Steps are stored as one text field, one step per line. Strip any "1." the
+// writer typed so the numbered list doesn't show "1. 1. …".
+function toSteps(instructions) {
+  return instructions
+    .split('\n')
+    .map((line) => line.trim().replace(/^\d+[.)]\s*/, ''))
+    .filter(Boolean)
+}
+
 function authorName(user) {
   const meta = user?.user_metadata || {}
   return (
@@ -396,12 +405,12 @@ function RecipeBook() {
                 </label>
 
                 <label>
-                  Method
+                  Steps
                   <textarea
                     value={form.instructions}
                     onChange={(e) => setForm({ ...form, instructions: e.target.value })}
                     rows={5}
-                    placeholder="How is it prepared?"
+                    placeholder="One step per line"
                     required
                   />
                 </label>
@@ -470,8 +479,12 @@ function RecipeBook() {
                   ))}
                 </ul>
 
-                <h3>Method</h3>
-                <p className="instructions">{selected.instructions}</p>
+                <h3>Steps</h3>
+                <ol className="instructions">
+                  {toSteps(selected.instructions).map((step, index) => (
+                    <li key={`${index}-${step}`}>{step}</li>
+                  ))}
+                </ol>
               </article>
             ) : loading ? null : (
               <div className="recipe-empty">
