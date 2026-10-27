@@ -18,6 +18,13 @@
   --ink: #da0d1b;
   --font: #000000;
   --card-bg: #fcf3e7;
+
+  /* Glassmorphism: see-through white, strong blur, light edge, soft shadow.
+     Every glass surface on the map uses these, so tune them here. */
+  --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.2));
+  --glass-blur: blur(16px) saturate(160%);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 
 .cookbook-guide-app {
@@ -33,10 +40,29 @@
   position: relative;
 }
 
+/* Red glass circle behind each pin: the site's red (#da0d1b), slightly see-through,
+   with the shared glassmorphism blur and edge. */
 .cookbook-guide-app .emoji-marker {
-  font-size: 1.8rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
   line-height: 1;
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    rgba(240, 60, 70, 0.6),
+    rgba(218, 13, 27, 0.35)
+  );
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.15);
   transition: transform 0.15s;
   cursor: pointer;
 }
@@ -90,21 +116,13 @@
 }
 
 /* ── SIDE PANEL ── */
-/* Frosted glass shared by the place panel, the modals and the gear menu. */
+/* Glassmorphism shared by the place panel, the modals and the gear menu. */
 .cookbook-guide-app :is(.side-panel, .e-modal, .gear-menu) {
-  background: linear-gradient(
-    155deg,
-    rgba(255, 255, 255, 0.55) 0%,
-    rgba(252, 243, 231, 0.42) 40%,
-    rgba(252, 243, 231, 0.55) 100%
-  );
-  backdrop-filter: blur(26px) saturate(180%);
-  -webkit-backdrop-filter: blur(26px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    inset 0 0 40px rgba(255, 255, 255, 0.12);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
+  box-shadow: var(--glass-shadow);
 }
 .cookbook-guide-app :is(.side-panel, .e-modal, .gear-menu)::before {
   content: '';
@@ -369,16 +387,20 @@
   width: fit-content;
   padding: 4px 12px;
   border-radius: 999px;
-  background: rgba(252, 243, 231, 0.7);
+  /* Same glassmorphism as the chips and panels. */
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
   color: var(--ink);
   font-size: 0.78rem;
   font-weight: 600;
   text-decoration: none;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--glass-shadow);
   transition: background 0.15s, transform 0.15s;
 }
 .cookbook-guide-app .back-to-landing-btn:hover {
-  background: #fff;
+  background: rgba(255, 255, 255, 0.6);
   transform: translateY(-1px);
 }
 
@@ -405,9 +427,9 @@
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.15s ease;
-  background: rgba(252, 243, 231, 0.55);
-  backdrop-filter: blur(5px) saturate(180%);
-  -webkit-backdrop-filter: blur(5px) saturate(200%);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
   color: var(--font);
 }
@@ -431,9 +453,9 @@
   border: 2px solid transparent;
   cursor: pointer;
   transition: all 0.15s ease;
-  background: rgba(252, 243, 231, 0.55);
-  backdrop-filter: blur(5px) saturate(180%);
-  -webkit-backdrop-filter: blur(5px) saturate(200%);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
   font-size: 0.95rem;
   margin-top: 5px;
@@ -462,11 +484,12 @@
   width: clamp(260px, 20vw, 520px);
   max-height: calc(100% - 188px);
   flex-shrink: 0;
-  background: rgba(252, 243, 231, 0.55);
-  backdrop-filter: blur(5px) saturate(180%);
-  -webkit-backdrop-filter: blur(5px) saturate(200%);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border-radius: 18px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  border: var(--glass-border);
+  box-shadow: var(--glass-shadow);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1180,7 +1203,6 @@
     z-index: 2001; /* above the zoom buttons and the e-board gear */
     transform: translateY(calc(100% + 16px));
   }
-  .cookbook-guide-app .filter-panel { background: rgba(252, 243, 231, 0.94); }
   .cookbook-guide-app :is(.filter-panel, .side-panel).open { transform: translateY(0); }
 }
 

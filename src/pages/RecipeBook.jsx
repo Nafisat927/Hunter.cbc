@@ -428,7 +428,6 @@ function RecipeBook() {
               <article className="recipe-detail" key={selected.id}>
                 <div className="recipe-detail-top">
                   <div>
-                    <p className="recipe-kicker">From the collection</p>
                     <h2>{selected.title}</h2>
                     <p className="recipe-byline">
                       Written by {selected.author}

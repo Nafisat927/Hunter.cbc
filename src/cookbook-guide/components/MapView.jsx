@@ -5,8 +5,10 @@ import { catConfig } from '../lib/catConfig';
 
 const CARTO_KEY = import.meta.env.VITE_CARTO_KEY;
 
+// CARTO "Voyager": blue water, green parks, colored roads — the closest free look to
+// Google Maps (Google's own tiles can't be used in Leaflet under their terms).
 const TILE_URL = CARTO_KEY
-  ? `https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=${CARTO_KEY}`
+  ? `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${CARTO_KEY}`
   : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
 // Fixed landmark pin, not from Supabase, not filterable. Category: 'college'.
@@ -35,9 +37,9 @@ export default function MapView({ places, onSelectPlace }) {
     // Static Hunter College landmark pin, added once, independent of the places data.
     const hunterIcon = L.divIcon({
       className: '',
-      html: '<div style="font-size:1.8rem;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.2))">🎓</div>',
-      iconSize: [36, 36],
-      iconAnchor: [18, 4],
+      html: '<div class="emoji-marker">🎓</div>',
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
     });
     L.marker([HUNTER_COLLEGE.lat, HUNTER_COLLEGE.lng], { icon: hunterIcon })
       .bindTooltip(HUNTER_COLLEGE.label, {
@@ -69,9 +71,9 @@ export default function MapView({ places, onSelectPlace }) {
       const icon = L.divIcon({
         className: '',
         html: `<div class="emoji-marker">${cfg.emoji}</div>`,
-        iconSize: [36, 36],
-        iconAnchor: [18, 18],
-        popupAnchor: [0, -20],
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -18],
       });
 
       const marker = L.marker([place.lat, place.lng], { icon });

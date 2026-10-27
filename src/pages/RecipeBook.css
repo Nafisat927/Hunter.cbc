@@ -194,8 +194,9 @@
   border-right: 1px solid rgba(90, 60, 30, 0.15);
 }
 
+/* Same 34px inset as the left page, so both pages' text starts the same distance in. */
 .book-page-right {
-  padding-left: 44px;
+  padding-left: 34px;
 }
 
 .page-heading {
