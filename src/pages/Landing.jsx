@@ -60,6 +60,12 @@ const links = [
     icon: <span className="link-emoji" aria-hidden="true">📖</span>,
     internal: true,
   },
+  {
+    label: 'The Big Back Lookback',
+    to: '/big-back-lookback',
+    icon: <span className="link-emoji" aria-hidden="true">📸</span>,
+    internal: true,
+  },
 ]
 
 function Landing() {
