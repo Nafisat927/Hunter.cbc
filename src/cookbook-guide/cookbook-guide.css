@@ -25,6 +25,10 @@
   --glass-blur: blur(16px) saturate(160%);
   --glass-border: 1px solid rgba(255, 255, 255, 0.5);
   --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  /* Panels, modals, gear menu and filter panel are solid white, not glass. */
+  --panel-bg: #fff;
+  --panel-border: 1px solid rgba(26, 26, 46, 0.08);
+  --panel-shadow: 0 8px 32px rgba(26, 26, 46, 0.14);
 }
 
 .cookbook-guide-app {
@@ -40,8 +44,7 @@
   position: relative;
 }
 
-/* Red glass circle behind each pin: the site's red (#da0d1b), slightly see-through,
-   with the shared glassmorphism blur and edge. */
+/* White glass circle behind each pin, same glassmorphism as the chips and panels. */
 .cookbook-guide-app .emoji-marker {
   width: 32px;
   height: 32px;
@@ -51,11 +54,7 @@
   font-size: 1.15rem;
   line-height: 1;
   border-radius: 50%;
-  background: linear-gradient(
-    135deg,
-    rgba(240, 60, 70, 0.6),
-    rgba(218, 13, 27, 0.35)
-  );
+  background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border: var(--glass-border);
@@ -116,27 +115,11 @@
 }
 
 /* ── SIDE PANEL ── */
-/* Glassmorphism shared by the place panel, the modals and the gear menu. */
+/* Solid white surface shared by the place panel, the modals and the gear menu. */
 .cookbook-guide-app :is(.side-panel, .e-modal, .gear-menu) {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: var(--glass-border);
-  box-shadow: var(--glass-shadow);
-}
-.cookbook-guide-app :is(.side-panel, .e-modal, .gear-menu)::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(
-    120deg,
-    rgba(255, 255, 255, 0.5) 0%,
-    rgba(255, 255, 255, 0) 22%,
-    rgba(255, 255, 255, 0) 78%,
-    rgba(255, 255, 255, 0.25) 100%
-  );
-  mix-blend-mode: overlay;
+  background: var(--panel-bg);
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
 }
 
 .cookbook-guide-app .side-panel {
@@ -484,12 +467,10 @@
   width: clamp(260px, 20vw, 520px);
   max-height: calc(100% - 188px);
   flex-shrink: 0;
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  background: var(--panel-bg);
   border-radius: 18px;
-  border: var(--glass-border);
-  box-shadow: var(--glass-shadow);
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -747,7 +728,7 @@
   align-items: center;
   gap: 10px;
 }
-.cookbook-guide-app .gear-menu-item:hover { background: rgba(255, 255, 255, 0.45); }
+.cookbook-guide-app .gear-menu-item:hover { background: rgba(26, 26, 46, 0.05); }
 .cookbook-guide-app .gear-menu-item.danger { color: var(--coral); }
 
 .cookbook-guide-app .add-place-btn {
