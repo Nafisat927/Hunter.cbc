@@ -370,10 +370,8 @@
   width: fit-content;
   padding: 4px 12px;
   border-radius: 999px;
-  /* Same glassmorphism as the chips and panels. */
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  /* Solid white chip, like the type chips. */
+  background: #fff;
   border: var(--glass-border);
   color: var(--ink);
   font-size: 0.78rem;
@@ -383,7 +381,7 @@
   transition: background 0.15s, transform 0.15s;
 }
 .cookbook-guide-app .back-to-landing-btn:hover {
-  background: rgba(255, 255, 255, 0.6);
+  background: #F8F5EE;
   transform: translateY(-1px);
 }
 
@@ -410,9 +408,7 @@
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.15s ease;
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  background: #fff;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
   color: var(--font);
 }
@@ -436,9 +432,7 @@
   border: 2px solid transparent;
   cursor: pointer;
   transition: all 0.15s ease;
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  background: #fff;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
   font-size: 0.95rem;
   margin-top: 5px;
