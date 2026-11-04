@@ -44,7 +44,7 @@
   position: relative;
 }
 
-/* White glass circle behind each pin, same glassmorphism as the chips and panels. */
+/* Solid white circle behind each pin, matching the chips. */
 .cookbook-guide-app .emoji-marker {
   width: 32px;
   height: 32px;
@@ -54,14 +54,8 @@
   font-size: 1.15rem;
   line-height: 1;
   border-radius: 50%;
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: var(--glass-border);
-  box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.15);
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
   transition: transform 0.15s;
   cursor: pointer;
 }
